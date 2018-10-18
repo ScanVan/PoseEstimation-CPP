@@ -51,25 +51,34 @@ int main() {
 		return 1;
 	}
 
-	std::vector<double> sv_u(p3d_1.size(),1);
-	std::vector<double> sv_v(p3d_2.size(),1);
-	std::vector<double> sv_w(p3d_3.size(),1);
+//	std::vector<double> sv_u(p3d_1.size(),1);
+//	std::vector<double> sv_v(p3d_2.size(),1);
+//	std::vector<double> sv_w(p3d_3.size(),1);
 
-	// Rotation matrices
-	Mat_33<double> sv_r_12{};
-	Mat_33<double> sv_r_23{};
-	Mat_33<double> sv_r_31{};
+//	// Rotation matrices
+//	Mat_33<double> sv_r_12{};
+//	Mat_33<double> sv_r_23{};
+//	Mat_33<double> sv_r_31{};
 
-	// Translation vectors
-	Points<double> sv_t_12{};
-	Points<double> sv_t_23{};
-	Points<double> sv_t_31{};
+//	// Translation vectors
+//	Points<double> sv_t_12{};
+//	Points<double> sv_t_23{};
+//	Points<double> sv_t_31{};
 
 	// Output result, vector of points
 	Vec_Points<double> sv_scene{p3d_1.size()};
 
-	// This sets the number of iterations in the algorithm
-	int iterations {50};
+	// Output result, position of the center
+	Points<double> positions {};
+
+	// Input. List of vec points
+	std::vector<Vec_Points<double>> p3d_liste { p3d_1, p3d_2, p3d_3 };
+
+	// Input. error
+	double error_max { 1e-8 };
+
+//	// This sets the number of iterations in the algorithm
+//	int iterations {50};
 
 	// For timing measurements
 	std::chrono::high_resolution_clock::time_point t1{};
@@ -79,11 +88,14 @@ int main() {
 	t1 = std::chrono::high_resolution_clock::now();
 
 	// main algorithm
-	pose_estimation (p3d_1, p3d_2, p3d_3,
-					 iterations,
-					 sv_scene,
-					 sv_r_12, sv_r_23, sv_r_31,
-					 sv_t_12, sv_t_23, sv_t_31);
+//	pose_estimation (p3d_1, p3d_2, p3d_3,
+//					 iterations,
+//					 sv_scene,
+//					 sv_r_12, sv_r_23, sv_r_31,
+//					 sv_t_12, sv_t_23, sv_t_31);
+
+	pose_estimation (p3d_liste, error_max,
+					 sv_scene, positions);
 
 	// stop measuring time
 	t2 = std::chrono::high_resolution_clock::now();

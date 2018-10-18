@@ -206,16 +206,23 @@ void pose_scene (const Vec_Points<T> &p3d_1, const Vec_Points<T> &p3d_2, const V
 }
 
 template <typename T>
-void pose_estimation (const Vec_Points<T> &p3d_1, const Vec_Points<T> &p3d_2, const Vec_Points<T> &p3d_3,
-				 	  const size_t iterations,
+void pose_estimation (const std::vector<Vec_Points<double>> &p3d_liste, const double error_max,
 					  Vec_Points<T> &sv_scene,
-					  Mat_33<T> &sv_r_12, Mat_33<T> &sv_r_23, Mat_33<T> &sv_r_31,
-					  Points<T> &sv_t_12, Points<T> &sv_t_23, Points<T> &sv_t_31) {
+					  Points<double> &positions) {
 
-	std::vector<T> sv_u(p3d_1.size(),1);
-	std::vector<T> sv_v(p3d_2.size(),1);
-	std::vector<T> sv_w(p3d_3.size(),1);
 
+	int nb_sph = p3d_liste.size();
+	int nb_pts = p3d_liste[0].size();
+
+	std::vector<std::vector<T>> sv_u_liste {};
+
+	std::vector<T> ones(nb_pts,1);
+	for (int i=0; i < nb_sph; ++i) {
+		sv_u_liste.push_back(ones);
+	}
+
+
+	//==================================================
 	Points<T> zero {0, 0, 0};
 	sv_scene.assign(p3d_1.size(), zero);
 
