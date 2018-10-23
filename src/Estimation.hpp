@@ -17,32 +17,30 @@
 #include "Vec_Points.hpp"
 
 template <typename T>
-void estimation_rot_trans (const Vec_Points<T> &p3d_1, const Vec_Points<T> &p3d_2, const Vec_Points<T> &p3d_3,
-						   const std::vector<T> &sv_u, const std::vector<T> &sv_v, const std::vector<T> &sv_w,
-						   Mat_33<T> &sv_r_12, Mat_33<T> &sv_r_23, Mat_33<T> &sv_r_31,
-						   Points<T> &sv_t_12, Points<T> &sv_t_23, Points<T> &sv_t_31)
-// Takes as inputs p3d_1, p3d_2, p3d_3, sv_u, sv_v, sv_w
-// and generates outputs sv_r_12, sv_r_23, sv_r_31 and sv_t_12,sv_t_23 and sv_t_31
+void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const std::vector<std::vector<T>> sv_u_liste,
+						   std::vector<Mat_33<T>> &sv_r_liste, std::vector<Points<T>> &sv_t_liste)
+// Takes as inputs p3d_liste and sv_u_liste,
+// and generates outputs sv_r_liste, sv_t_liste
 {
-	// Check that sizes are all the same
-	if (!((p3d_1.size() == p3d_2.size()) &&
-	    (p3d_2.size() == p3d_3.size()) &&
-	    (p3d_3.size() == sv_u.size()) &&
-	    (sv_u.size() == sv_v.size()) &&
-	    (sv_v.size() == sv_w.size()))) {
 
-		throw std::runtime_error ("Sizes of the vector of points in estimation_rot_trans do not match");
+	int nb_sph { p3d_liste.size() };
+	int nb_pts { p3d_liste[0].size() };
+
+	std::vector<Vec_Points<T>> p3d_liste_exp { };
+
+	for (int i {0}; i < nb_sph; ++i) {
+		p3d_liste_exp.push_back (p3d_liste[i] * sv_u_liste[i]);
 	}
 
-	// Multiply each point of the vector by the corresponding scalar
-	Vec_Points<T> p3d_1_exp {p3d_1 * sv_u};
-	Vec_Points<T> p3d_2_exp {p3d_2 * sv_v};
-	Vec_Points<T> p3d_3_exp {p3d_3 * sv_w};
+	std::vector<Points<T>> sv_cent_liste { };
+	for (int i {0}; i < nb_sph; ++i) {
+		sv_cent_liste.push_back (p3d_liste_exp[i].mean());
+	}
 
-	// Calculates the centers of the vector of points
-	Points<T> sv_cent_1 {p3d_1_exp.mean()};
-	Points<T> sv_cent_2 {p3d_2_exp.mean()};
-	Points<T> sv_cent_3 {p3d_3_exp.mean()};
+	std::vector<Vec_Points<T>> sv_diff_liste { };
+	for (int i {0}; i < nb_sph; ++i) {
+		sv_diff_liste.push_back (p3d_liste_exp[i] - sv_cent_liste[i]);
+	}
 
 	// Calculates the distances to the centers of the vector of points
 	Vec_Points<T> sv_diff_1 {p3d_1_exp - sv_cent_1};
@@ -210,38 +208,48 @@ void pose_estimation (const std::vector<Vec_Points<double>> &p3d_liste, const do
 					  Vec_Points<T> &sv_scene,
 					  Points<double> &positions) {
 
+// modified for n-tuple
 
 	int nb_sph = p3d_liste.size();
 	int nb_pts = p3d_liste[0].size();
 
 	std::vector<std::vector<T>> sv_u_liste {};
+	std::vector<Points<T>> sv_t_liste {};
+	std::vector<Mat_33<T>> sv_r_liste {};
+	std::vector<T> sv_e_liste {};
 
 	std::vector<T> ones(nb_pts,1);
 	for (int i=0; i < nb_sph; ++i) {
 		sv_u_liste.push_back(ones);
 	}
 
+	T sv_e_old { 0 };
+	T sv_e_norm { 1 };
+	int count { 0 };
 
-	//==================================================
-	Points<T> zero {0, 0, 0};
-	sv_scene.assign(p3d_1.size(), zero);
+	while (abs(sv_e_norm - sv_e_old) > error_max) {
 
-	for (size_t i{0}; i < iterations; ++i) {
-		estimation_rot_trans (p3d_1, p3d_2, p3d_3,
-							  sv_u, sv_v, sv_w,
-							  sv_r_12, sv_r_23, sv_r_31,
-							  sv_t_12, sv_t_23, sv_t_31);
+		estimation_rot_trans (p3d_liste, sv_u_liste,
+							  sv_r_liste, sv_t_liste);
 
-		estimation_rayons (p3d_1, p3d_2, p3d_3,
-						   sv_r_12, sv_r_23, sv_r_31,
-						   sv_t_12, sv_t_23, sv_t_31,
-						   sv_u, sv_v, sv_w);
+		estimation_rayons (p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste,
+						   sv_u_liste, sv_e_liste);
+
+		++count;
+		T sv_t_norm { 0 };
+		for (int i {0}; i < sv_t_liste.size(); ++i) {
+			sv_t_norm += (sv_t_liste[i].norm());
+		}
+
+		T max { 0 };
+		for (const auto x: sv_e_liste) {
+			max = x > max ? x : max;
+		}
+		sv_e_norm = sv_e_liste.size() * max / sv_t_norm;
 	}
 
-	pose_scene (p3d_1, p3d_2, p3d_3,
-				sv_r_12, sv_r_23, sv_r_31,
-				sv_t_12, sv_t_23, sv_t_31,
-				sv_scene);
+	pose_scene (p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste,
+			    sv_scene, positions);
 
 }
 
