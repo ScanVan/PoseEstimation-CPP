@@ -120,6 +120,58 @@ inline Points<T> intersection (const Mat_33<T> &c, const Mat_33<T> &azim){
 }
 
 template <typename T>
+std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const std::vector<Points<T>> &liste_azim ){
+
+	int nb_pts { liste_p.size() };
+	Mat_33<T> sum_v { };
+	Points<T> sum_vp { };
+
+	for (int i { 0 }; i < nb_pts; ++i) {
+		T v11 { 1.0 - liste_azim[i][0] * liste_azim[i][0] };
+		T v22 { 1.0 - liste_azim[i][1] * liste_azim[i][1] };
+		T v33 { 1.0 - liste_azim[i][2] * liste_azim[i][2] };
+		T v12 { -liste_azim[i][0] * liste_azim[i][1] };
+		T v13 { -liste_azim[i][0] * liste_azim[i][2] };
+		T v23 { -liste_azim[i][1] * liste_azim[i][2] };
+		sum_v[0][0] += v11;
+		sum_v[0][1] += v12;
+		sum_v[0][2] += v13;
+		sum_v[1][0] += v12;
+		sum_v[1][1] += v22;
+		sum_v[1][2] += v23;
+		sum_v[2][0] += v13;
+		sum_v[2][1] += v23;
+		sum_v[2][2] += v33;
+		T p1 { liste_p[i][0] };
+		T p2 { liste_p[i][1] };
+		T p3 { liste_p[i][2] };
+		sum_vp[0][0] += p1 * v11 + p2 * v12 + p3 * v13;
+		sum_vp[1][0] += p1 * v12 + p2 * v22 + p3 * v23;
+		sum_vp[2][0] += p1 * v13 + p2 * v23 + p3 * v33;
+	}
+
+	Points<T> inter { sum_v.inv() * sum_vp };
+
+	std::vector<T> rayons { };
+	for (int i { 0 }; i < nb_pts; ++i) {
+		rayons.push_back(0);
+	}
+
+	for (int i { 0 }; i < nb_pts; ++i) {
+		Points<T> centre { liste_p[i] };
+		Points<T> azim { liste_azim[i] };
+		Points<T> inter_proj { azim * ((inter - centre) * azim) / (azim * azim) };
+		T direction { inter_proj * azim };
+		if (direction < 0) {
+			rayons[i] = -inter_proj.norm();
+		} else {
+			rayons[i] = inter_proj.norm();
+		}
+	}
+}
+
+
+template <typename T>
 void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std::vector<Points<T>> &sv_t_liste,
 							std::vector<Points<T>> &center_liste)
 // Takes sv_r_liste and sv_t_liste as inputs
@@ -146,18 +198,21 @@ void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std:
 
 }
 
-template <typename T>
-std::vector<Points<T>> azim_determination (const std::vector<Points<T>> &azim_liste,
-		                                   const std::vector<Mat_33<T>> &sv_r_liste,
-										   const std::vector<Points<T>> &sv_t_liste)
-{
+template<typename T>
+std::vector<Points<T>> azim_determination(const std::vector<Points<T>> &azim_liste,
+										  const std::vector<Mat_33<T>> &sv_r_liste,
+										  const std::vector<Points<T>> &sv_t_liste) {
+
 	int nb_sph { azim_liste.size() };
-	for (int i {0}; i < nb_sph; ++i) {
-		for (int j{0}; j < i; ++j) {
+	for (int i { 0 }; i < nb_sph; ++i) {
+		for (int j { 0 }; j < i; ++j) {
 			int k { i - 1 - j };
 			azim_liste[i] = sv_r_liste[k].transpose() * azim_liste[i];
 		}
 	}
+
+	return azim_liste;
+
 }
 
 template<typename T>
@@ -190,7 +245,7 @@ void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<
 		azim_liste = azim_determination(azim_liste, sv_r_liste, sv_t_liste);
 		std::vector<T> rayons { };
 		try {
-			rayons = intersection(center_liste, azim_liste);
+			rayons = intersection_bis(center_liste, azim_liste);
 			for (int k { 0 }; k < nb_sph; ++k) {
 				sv_u_liste[k][j] = rayons[k];
 			}
