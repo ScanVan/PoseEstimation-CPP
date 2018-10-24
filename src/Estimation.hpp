@@ -146,6 +146,20 @@ void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std:
 
 }
 
+template <typename T>
+std::vector<Points<T>> azim_determination (const std::vector<Points<T>> &azim_liste,
+		                                   const std::vector<Mat_33<T>> &sv_r_liste,
+										   const std::vector<Points<T>> &sv_t_liste)
+{
+	int nb_sph { azim_liste.size() };
+	for (int i {0}; i < nb_sph; ++i) {
+		for (int j{0}; j < i; ++j) {
+			int k { i - 1 - j };
+			azim_liste[i] = sv_r_liste[k].transpose() * azim_liste[i];
+		}
+	}
+}
+
 template<typename T>
 void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> sv_u_liste, const std::vector<Mat_33<T>> &sv_r_liste,
 		const std::vector<Points<T>> &sv_t_liste, std::vector<T> &sv_e_liste) {
