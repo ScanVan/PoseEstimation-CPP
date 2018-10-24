@@ -37,39 +37,45 @@ void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const st
 		sv_cent_liste.push_back (p3d_liste_exp[i].mean());
 	}
 
+	// Calculates the distances to the centers of the vector of points
 	std::vector<Vec_Points<T>> sv_diff_liste { };
 	for (int i {0}; i < nb_sph; ++i) {
 		sv_diff_liste.push_back (p3d_liste_exp[i] - sv_cent_liste[i]);
 	}
 
-	// Calculates the distances to the centers of the vector of points
-	Vec_Points<T> sv_diff_1 {p3d_1_exp - sv_cent_1};
-	Vec_Points<T> sv_diff_2 {p3d_2_exp - sv_cent_2};
-	Vec_Points<T> sv_diff_3 {p3d_3_exp - sv_cent_3};
-
 	// Multiply vector of points transposed by vector of points
-	Mat_33<T> sv_corr_12 {sv_diff_1 * sv_diff_2};
-	Mat_33<T> sv_corr_23 {sv_diff_2 * sv_diff_3};
-	Mat_33<T> sv_corr_31 {sv_diff_3 * sv_diff_1};
+	std::vector<Mat_33<T>> sv_corr_liste {};
+	for (int i {0}; i < (nb_sph - 1); ++i) {
+		sv_corr_liste.push_back = sv_diff_liste[i] * sv_diff_liste[i+1];
+	}
 
-	// Matrices for SVD computation
-	Mat_33<T> svd_U_12t{}, svd_U_23t{}, svd_U_31t{};
-	Mat_33<T> svd_V_12{}, svd_V_23{}, svd_V_31{};
+	// check size of sv_r_liste. If it is empty fill with zero Mat_33
+	if (sv_r_liste.size() != (nb_sph - 1)) {
+		Mat_33<T> zm {};
+		for (int i{0}; i < (nb_sph - 1); ++i) {
+			sv_r_liste.push_back (zm);
+		}
+	}
 
-	// Computation of SVD
-	sv_corr_12.svd(svd_U_12t, svd_V_12);
-	sv_corr_23.svd(svd_U_23t, svd_V_23);
-	sv_corr_31.svd(svd_U_31t, svd_V_31);
+	// check size of sv_t_liste. If it is empty fill with zero Points
+	if (sv_t_liste.size() != (nb_sph -1)) {
+		Points<T> zp {};
+		for (int i{0}; i < (nb_sph - 1); ++i) {
+			sv_t_liste.push_back (zp);
+		}
+	}
 
-	// Call the svd_rotation function
-	sv_r_12.svd_rotation(svd_V_12, svd_U_12t);
-	sv_r_23.svd_rotation(svd_V_23, svd_U_23t);
-	sv_r_31.svd_rotation(svd_V_31, svd_U_31t);
+	for (int i{0}; i < (nb_sph -1); ++i) {
+		// Matrices for SVD computation
+		Mat_33<T> svd_Ut{};
+		Mat_33<T> svd_V{};
+		Mat_33<T> sv_r{};
 
-	// Computation of translation vectors
-	sv_t_12 = sv_cent_2 - (sv_r_12 * sv_cent_1);
-	sv_t_23 = sv_cent_3 - (sv_r_23 * sv_cent_2);
-	sv_t_31 = sv_cent_1 - (sv_r_31 * sv_cent_3);
+		sv_corr_liste[i].svd(svd_Ut, svd_V);
+		sv_r_liste[i].svd_rotation(svd_V, svd_Ut);
+		sv_t_liste[i] = sv_cent_liste[i+1] - (sv_r_liste[i] * sv_cent_liste[i]);
+
+	}
 
 }
 
