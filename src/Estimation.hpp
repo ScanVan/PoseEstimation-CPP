@@ -146,58 +146,56 @@ void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std:
 
 }
 
-template <typename T>
-void estimation_rayons (const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> sv_u_liste,
-					    const std::vector<Mat_33<T>> &sv_r_liste, const std::vector<Points<T>> &sv_t_liste,
-						std::vector<T> &sv_e_liste) {
+template<typename T>
+void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> sv_u_liste, const std::vector<Mat_33<T>> &sv_r_liste,
+		const std::vector<Points<T>> &sv_t_liste, std::vector<T> &sv_e_liste) {
 // Takes as input p3d_liste, sv_u_liste, sv_r_liste and sv_t_liste
 // and generates as output sv_u_liste and sv_e_liste
 
 	int nb_sph { p3d_liste.size() };
 	int nb_pts { p3d_liste[0].size() };
 
-	std::vector<Points<T>> center_liste {};
-	centers_determination (sv_r_liste, sv_t_liste, center_liste);
+	std::vector<Points<T>> center_liste { };
+	centers_determination(sv_r_liste, sv_t_liste, center_liste);
 
+	if (sv_e_liste.size() < (nb_sph - 1)) {
+		for (int i { sv_e_liste.size() }; i < (nb_sph - 1); ++i) {
+			sv_e_liste.push_back(0);
+		}
+	} else {
+		for (int i { 0 }; i < (nb_sph - 1); ++i) {
+			sv_e_liste[i] = 0;
+		}
+	}
 
-	Points<T> c1 {0, 0, 0};
-	Points<T> c2 {sv_t_12}; // c2 = c1 + sv_t_12
-	Points<T> c3 {sv_t_12 + sv_r_12 * sv_t_23}; // c3 = c2 + sv_r_12 * sv_t_23
+	for (int j { 0 }; j < nb_pts; ++j) {
+		std::vector<Points<T>> azim_liste { };
+		for (int i { 0 }; i < nb_sph; ++i) {
+			azim_liste.push_back(p3d_liste[i][j]);
+		}
+		azim_liste = azim_determination(azim_liste, sv_r_liste, sv_t_liste);
+		std::vector<T> rayons { };
+		try {
+			rayons = intersection(center_liste, azim_liste);
+			for (int k { 0 }; k < nb_sph; ++k) {
+				sv_u_liste[k][j] = rayons[k];
+			}
+		} catch (...) {
+			for (int k { 0 }; k < nb_sph; ++k) {
+				rayons[k] = sv_u_liste[k][j];
+			}
+		}
+		std::vector<Points<T>> inter_liste { };
 
-	sv_u.assign(longueur, 0);
-	sv_v.assign(longueur, 0);
-	sv_w.assign(longueur, 0);
+		for (int i { 0 }; i < nb_sph; ++i) {
+			inter_liste[i] = center_liste[i] + azim_liste[i] * rayons[i];
+		}
 
-	Vec_Points<T> azim1m {p3d_1};
-	Vec_Points<T> azim2m {(p3d_2 * sv_r_23) * sv_r_31};
-	Vec_Points<T> azim3m {p3d_3 * sv_r_31};
-
-	for (size_t i{0}; i<longueur; ++i)
-	{
-
-		Points<T> azim1 {azim1m[i]};
-		Points<T> azim2 {azim2m[i]};
-		Points<T> azim3 {azim3m[i]};
-
-		Mat_33<T> c {c1, c2, c3};
-		Mat_33<T> azim { azim1, azim2, azim3 };
-
-		Points<T> inter{};
-		inter = intersection (c, azim);
-
-		// here I use scalar product of points
-		T factor1 { ((inter - c1) * azim1) / (azim1 * azim1) };
-		T factor2 { ((inter - c2) * azim2) / (azim2 * azim2) };
-		T factor3 { ((inter - c3) * azim3) / (azim3 * azim3) };
-
-		// here I use multiplication of a point by a scalar
-		Points<T> inter1 { c1 + azim1 * factor1 };
-		Points<T> inter2 { c2 + azim2 * factor2 };
-		Points<T> inter3 { c3 + azim3 * factor3 };
-
-		sv_u[i] = (inter1 - c1).norm();
-		sv_v[i] = (inter2 - c2).norm();
-		sv_w[i] = (inter3 - c3).norm();
+		for (int i { 0 }; i < (nb_sph - 1); ++i) {
+			Points<T> p { inter_liste[i] - inter_liste[i + 1] };
+			T n { p.norm() };
+			sv_e_liste[i] = sv_e_liste[i] > n ? sv_e_liste[i] : n;
+		}
 
 	}
 }
