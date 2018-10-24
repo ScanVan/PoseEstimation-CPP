@@ -50,17 +50,17 @@ void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const st
 	}
 
 	// check size of sv_r_liste. If it is empty fill with zero Mat_33
-	if (sv_r_liste.size() != (nb_sph - 1)) {
+	if (sv_r_liste.size() < (nb_sph - 1)) {
 		Mat_33<T> zm {};
-		for (int i{0}; i < (nb_sph - 1); ++i) {
+		for (int i{sv_r_liste.size()}; i < (nb_sph - 1); ++i) {
 			sv_r_liste.push_back (zm);
 		}
 	}
 
 	// check size of sv_t_liste. If it is empty fill with zero Points
-	if (sv_t_liste.size() != (nb_sph -1)) {
+	if (sv_t_liste.size() < (nb_sph -1)) {
 		Points<T> zp {};
-		for (int i{0}; i < (nb_sph - 1); ++i) {
+		for (int i{sv_t_liste.size()}; i < (nb_sph - 1); ++i) {
 			sv_t_liste.push_back (zp);
 		}
 	}
@@ -120,19 +120,45 @@ inline Points<T> intersection (const Mat_33<T> &c, const Mat_33<T> &azim){
 }
 
 template <typename T>
-void estimation_rayons (const Vec_Points<T> &p3d_1, const Vec_Points<T> &p3d_2, const Vec_Points<T> &p3d_3,
-						const Mat_33<T> &sv_r_12, const Mat_33<T> &sv_r_23, const Mat_33<T> &sv_r_31,
-						const Points<T> &sv_t_12, const Points<T> &sv_t_23, const Points<T> &sv_t_31,
-						std::vector<T> &sv_u, std::vector<T> &sv_v, std::vector<T> &sv_w) {
-// Takes as input p3d_1, p3d_2, p3d_3, sv_r_12, sv_r_23, sv_r_31, sv_t_12, sv_t_23, sv_t_31
-// and generates as output sv_u, sv_v and sv_w
+void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std::vector<Points<T>> &sv_t_liste,
+							std::vector<Points<T>> &center_liste)
+// Takes sv_r_liste and sv_t_liste as inputs
+// Generates center_liste as output
+{
+	int nb_sph { sv_r_liste.size() + 1 };
 
-	if (!((p3d_1.size() == p3d_2.size()) &&
-	      (p3d_2.size() == p3d_3.size()))) {
-		throw std::runtime_error ("Size of the vectors in estimation_rayons do not match.");
+	// if center_liste is empty
+	if (center_liste.size() < nb_sph) {
+		Points<T> zp{};
+		for (int i{center_liste.size()}; i < nb_sph; ++i) {
+			center_liste.push_back (zp);
+		}
 	}
 
-	size_t longueur = p3d_1.size();
+	for (int i{0}; i < (nb_sph -1); ++i) {
+		Points<T> center = {};
+		for (int j{0}; j < (i-1); ++j) {
+			int k { i - 1 - j };
+			center = (sv_r_liste[k].transpose()) * (center - sv_t_liste[k]);
+		}
+		center_liste[i] = center;
+	}
+
+}
+
+template <typename T>
+void estimation_rayons (const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> sv_u_liste,
+					    const std::vector<Mat_33<T>> &sv_r_liste, const std::vector<Points<T>> &sv_t_liste,
+						std::vector<T> &sv_e_liste) {
+// Takes as input p3d_liste, sv_u_liste, sv_r_liste and sv_t_liste
+// and generates as output sv_u_liste and sv_e_liste
+
+	int nb_sph { p3d_liste.size() };
+	int nb_pts { p3d_liste[0].size() };
+
+	std::vector<Points<T>> center_liste {};
+	centers_determination (sv_r_liste, sv_t_liste, center_liste);
+
 
 	Points<T> c1 {0, 0, 0};
 	Points<T> c2 {sv_t_12}; // c2 = c1 + sv_t_12

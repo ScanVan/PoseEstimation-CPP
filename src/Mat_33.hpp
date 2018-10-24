@@ -18,6 +18,7 @@ public:
 	Mat_33(Mat_33<T> &&obj);
 	void svd (Mat_33<T> &ut, Mat_33<T> &v) const;
 	void svd_rotation (Mat_33<T> &v, Mat_33<T> &u);
+	Mat_33<T> transpose() const;
 	Mat_33<T> inv () const;
 	Mat_33<T> & operator=(const Mat_33<T> &a);
 	Mat_33<T> & operator=(Mat_33<T> &&a);
@@ -169,6 +170,16 @@ inline void Mat_33<T>::svd_rotation (Mat_33<T> &v, Mat_33<T> &u){
 }
 
 template <typename T>
+inline Mat_33<T> Mat_33<T>::transpose() {
+
+	Mat_33<T> A { mat[0][0], mat[1][0], mat[2][0],
+				  mat[0][1], mat[1][1], mat[2][1],
+				  mat[0][2], mat[1][2], mat[2][2] };
+	return A;
+}
+
+
+template <typename T>
 inline Mat_33<T> Mat_33<T>::inv() const {
 
 	using namespace cv;
@@ -209,6 +220,7 @@ inline Mat_33<T> & Mat_33<T>::operator=(const Mat_33<T> &a) {
 	}
 	return *this;
 }
+
 
 template <typename T>
 inline Mat_33<T> & Mat_33<T>::operator=(Mat_33<T> &&a) {
