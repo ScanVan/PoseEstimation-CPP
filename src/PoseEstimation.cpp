@@ -69,7 +69,7 @@ int main() {
 	Vec_Points<double> sv_scene{p3d_1.size()};
 
 	// Output result, position of the center
-	Points<double> positions {};
+	std::vector<Points<double>> positions {};
 
 	// Input. List of vec points
 	std::vector<Vec_Points<double>> p3d_liste { p3d_1, p3d_2, p3d_3 };
@@ -102,7 +102,6 @@ int main() {
 
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
 	std::cout << "Number of points: " << p3d_1.size() << std::endl;
-	std::cout << "Number of iterations: " << iterations << std::endl;
 	std::cout << "Execution time: " << duration << " microseconds" << std::endl;
 
 	// setup path to save the output result

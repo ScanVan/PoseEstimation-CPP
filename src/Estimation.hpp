@@ -46,7 +46,7 @@ void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const st
 	// Multiply vector of points transposed by vector of points
 	std::vector<Mat_33<T>> sv_corr_liste {};
 	for (int i {0}; i < (nb_sph - 1); ++i) {
-		sv_corr_liste.push_back = sv_diff_liste[i] * sv_diff_liste[i+1];
+		sv_corr_liste.push_back (sv_diff_liste[i] * sv_diff_liste[i+1]);
 	}
 
 	// check size of sv_r_liste. If it is empty fill with zero Mat_33
@@ -215,6 +215,7 @@ std::vector<Points<T>> azim_determination(const std::vector<Points<T>> &azim_lis
 
 }
 
+
 template<typename T>
 void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> sv_u_liste, const std::vector<Mat_33<T>> &sv_r_liste,
 		const std::vector<Points<T>> &sv_t_liste, std::vector<T> &sv_e_liste) {
@@ -270,12 +271,32 @@ void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<
 }
 
 template <typename T>
-void pose_scene (const Vec_Points<T> &p3d_1, const Vec_Points<T> &p3d_2, const Vec_Points<T> &p3d_3,
-				 const Mat_33<T> &sv_r_12, const Mat_33<T> &sv_r_23, const Mat_33<T> &sv_r_31,
-				 const Points<T> &sv_t_12, const Points<T> &sv_t_23, const Points<T> &sv_t_31,
-				 Vec_Points<T> &sv_scene) {
+void pose_scene (const std::vector<Vec_Points<T>> &p3d_liste,
+			     const std::vector<std::vector<T>> &sv_u_liste,
+			     const std::vector<Mat_33<T>> &sv_r_liste,
+				 const std::vector<Points<T>> &sv_t_liste,
+				 Vec_Points<T> &sv_scene,
+				 std::vector<Points<T>> &center_liste) {
 
-	size_t longueur {p3d_1.size()};
+	int nb_sph { p3d_liste.size() };
+	int nb_pts { p3d_liste[0].size() };
+
+	centers_determination(sv_r_liste, sv_t_liste, center_liste);
+
+
+	// If sv_scene empty, fill with zeros
+	if (sv_scene.size() < nb_pts) {
+		for (int i{0}; i < nb_pts; ++i) {
+			sv_scene.push_back(0, 0, 0);
+		}
+	}
+
+
+
+
+
+
+	/*size_t longueur {p3d_1.size()};
 
 	Points<T> c1 {0, 0, 0};
 	Points<T> c2 {sv_t_12};	// c2 = c1 + sv_t_12
@@ -298,14 +319,14 @@ void pose_scene (const Vec_Points<T> &p3d_1, const Vec_Points<T> &p3d_2, const V
 		inter = intersection (c, azim);
 
 		sv_scene[i] = inter;
-	}
+	}*/
 
 }
 
 template <typename T>
-void pose_estimation (const std::vector<Vec_Points<double>> &p3d_liste, const double error_max,
+void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 					  Vec_Points<T> &sv_scene,
-					  Points<double> &positions) {
+					  std::vector<Points<T>> &positions) {
 
 // modified for n-tuple
 
@@ -331,8 +352,7 @@ void pose_estimation (const std::vector<Vec_Points<double>> &p3d_liste, const do
 		estimation_rot_trans (p3d_liste, sv_u_liste,
 							  sv_r_liste, sv_t_liste);
 
-		estimation_rayons (p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste,
-						   sv_u_liste, sv_e_liste);
+		estimation_rayons (p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_e_liste);
 
 		++count;
 		T sv_t_norm { 0 };

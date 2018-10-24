@@ -170,7 +170,7 @@ inline void Mat_33<T>::svd_rotation (Mat_33<T> &v, Mat_33<T> &u){
 }
 
 template <typename T>
-inline Mat_33<T> Mat_33<T>::transpose() {
+inline Mat_33<T> Mat_33<T>::transpose() const {
 
 	Mat_33<T> A { mat[0][0], mat[1][0], mat[2][0],
 				  mat[0][1], mat[1][1], mat[2][1],
