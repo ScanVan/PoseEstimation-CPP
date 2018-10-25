@@ -23,57 +23,57 @@ void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const st
 // and generates outputs sv_r_liste, sv_t_liste
 {
 
-	int nb_sph { p3d_liste.size() };
-	int nb_pts { p3d_liste[0].size() };
+	size_t nb_sph { p3d_liste.size() };
+	//size_t nb_pts { p3d_liste[0].size() };
 
 	std::vector<Vec_Points<T>> p3d_liste_exp { };
 
-	for (int i {0}; i < nb_sph; ++i) {
-		p3d_liste_exp.push_back (p3d_liste[i] * sv_u_liste[i]);
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		p3d_liste_exp.push_back(p3d_liste[i] * sv_u_liste[i]);
 	}
 
 	std::vector<Points<T>> sv_cent_liste { };
-	for (int i {0}; i < nb_sph; ++i) {
-		sv_cent_liste.push_back (p3d_liste_exp[i].mean());
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		sv_cent_liste.push_back(p3d_liste_exp[i].mean());
 	}
 
 	// Calculates the distances to the centers of the vector of points
 	std::vector<Vec_Points<T>> sv_diff_liste { };
-	for (int i {0}; i < nb_sph; ++i) {
-		sv_diff_liste.push_back (p3d_liste_exp[i] - sv_cent_liste[i]);
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		sv_diff_liste.push_back(p3d_liste_exp[i] - sv_cent_liste[i]);
 	}
 
 	// Multiply vector of points transposed by vector of points
-	std::vector<Mat_33<T>> sv_corr_liste {};
-	for (int i {0}; i < (nb_sph - 1); ++i) {
-		sv_corr_liste.push_back (sv_diff_liste[i] * sv_diff_liste[i+1]);
+	std::vector<Mat_33<T>> sv_corr_liste { };
+	for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
+		sv_corr_liste.push_back(sv_diff_liste[i] * sv_diff_liste[i + 1]);
 	}
 
 	// check size of sv_r_liste. If it is empty fill with zero Mat_33
 	if (sv_r_liste.size() < (nb_sph - 1)) {
-		Mat_33<T> zm {};
-		for (int i{sv_r_liste.size()}; i < (nb_sph - 1); ++i) {
-			sv_r_liste.push_back (zm);
+		Mat_33<T> zm { };
+		for (size_t i { sv_r_liste.size() }; i < (nb_sph - 1); ++i) {
+			sv_r_liste.push_back(zm);
 		}
 	}
 
 	// check size of sv_t_liste. If it is empty fill with zero Points
-	if (sv_t_liste.size() < (nb_sph -1)) {
-		Points<T> zp {};
-		for (int i{sv_t_liste.size()}; i < (nb_sph - 1); ++i) {
-			sv_t_liste.push_back (zp);
+	if (sv_t_liste.size() < (nb_sph - 1)) {
+		Points<T> zp { };
+		for (size_t i { sv_t_liste.size() }; i < (nb_sph - 1); ++i) {
+			sv_t_liste.push_back(zp);
 		}
 	}
 
-	for (int i{0}; i < (nb_sph -1); ++i) {
+	for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
 		// Matrices for SVD computation
-		Mat_33<T> svd_Ut{};
-		Mat_33<T> svd_V{};
-		Mat_33<T> sv_r{};
+		Mat_33<T> svd_Ut { };
+		Mat_33<T> svd_V { };
+		Mat_33<T> sv_r { };
 
 		sv_corr_liste[i].svd(svd_Ut, svd_V);
 		sv_r_liste[i].svd_rotation(svd_V, svd_Ut);
-		sv_t_liste[i] = sv_cent_liste[i+1] - (sv_r_liste[i] * sv_cent_liste[i]);
+		sv_t_liste[i] = sv_cent_liste[i + 1] - (sv_r_liste[i] * sv_cent_liste[i]);
 
 	}
 
@@ -122,18 +122,18 @@ inline Points<T> intersection (const Mat_33<T> &c, const Mat_33<T> &azim){
 template <typename T>
 std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const std::vector<Points<T>> &liste_azim ){
 
-	int nb_pts { liste_p.size() };
+	size_t nb_pts { liste_p.size() };
 	Mat_33<T> sum_v { };
 	Points<T> sum_vp { };
 
-	for (int i { 0 }; i < nb_pts; ++i) {
+	for (size_t i { 0 }; i < nb_pts; ++i) {
 		T v11 { 1.0 - liste_azim[i][0] * liste_azim[i][0] };
 		T v22 { 1.0 - liste_azim[i][1] * liste_azim[i][1] };
 		T v33 { 1.0 - liste_azim[i][2] * liste_azim[i][2] };
 		T v12 { -liste_azim[i][0] * liste_azim[i][1] };
 		T v13 { -liste_azim[i][0] * liste_azim[i][2] };
 		T v23 { -liste_azim[i][1] * liste_azim[i][2] };
-		sum_v[0][0] += v11;
+		sum_v[0][0] = sum_v[0][0] + v11;
 		sum_v[0][1] += v12;
 		sum_v[0][2] += v13;
 		sum_v[1][0] += v12;
@@ -145,19 +145,19 @@ std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const st
 		T p1 { liste_p[i][0] };
 		T p2 { liste_p[i][1] };
 		T p3 { liste_p[i][2] };
-		sum_vp[0][0] += p1 * v11 + p2 * v12 + p3 * v13;
-		sum_vp[1][0] += p1 * v12 + p2 * v22 + p3 * v23;
-		sum_vp[2][0] += p1 * v13 + p2 * v23 + p3 * v33;
+		sum_vp[0] += p1 * v11 + p2 * v12 + p3 * v13;
+		sum_vp[1] += p1 * v12 + p2 * v22 + p3 * v23;
+		sum_vp[2] += p1 * v13 + p2 * v23 + p3 * v33;
 	}
 
 	Points<T> inter { sum_v.inv() * sum_vp };
 
 	std::vector<T> rayons { };
-	for (int i { 0 }; i < nb_pts; ++i) {
+	for (size_t i { 0 }; i < nb_pts; ++i) {
 		rayons.push_back(0);
 	}
 
-	for (int i { 0 }; i < nb_pts; ++i) {
+	for (size_t i { 0 }; i < nb_pts; ++i) {
 		Points<T> centre { liste_p[i] };
 		Points<T> azim { liste_azim[i] };
 		Points<T> inter_proj { azim * ((inter - centre) * azim) / (azim * azim) };
@@ -168,6 +168,7 @@ std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const st
 			rayons[i] = inter_proj.norm();
 		}
 	}
+	return rayons;
 }
 
 
@@ -177,20 +178,20 @@ void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std:
 // Takes sv_r_liste and sv_t_liste as inputs
 // Generates center_liste as output
 {
-	int nb_sph { sv_r_liste.size() + 1 };
+	size_t nb_sph { sv_r_liste.size() + 1 };
 
 	// if center_liste is empty
 	if (center_liste.size() < nb_sph) {
 		Points<T> zp{};
-		for (int i{center_liste.size()}; i < nb_sph; ++i) {
+		for (size_t i{center_liste.size()}; i < nb_sph; ++i) {
 			center_liste.push_back (zp);
 		}
 	}
 
-	for (int i{0}; i < (nb_sph -1); ++i) {
+	for (size_t i{0}; i < (nb_sph -1); ++i) {
 		Points<T> center = {};
-		for (int j{0}; j < (i-1); ++j) {
-			int k { i - 1 - j };
+		for (size_t j{0}; j < (i-1); ++j) {
+			size_t k { i - 1 - j };
 			center = (sv_r_liste[k].transpose()) * (center - sv_t_liste[k]);
 		}
 		center_liste[i] = center;
@@ -199,14 +200,14 @@ void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std:
 }
 
 template<typename T>
-std::vector<Points<T>> azim_determination(const std::vector<Points<T>> &azim_liste,
+std::vector<Points<T>> azim_determination(std::vector<Points<T>> &azim_liste,
 										  const std::vector<Mat_33<T>> &sv_r_liste,
 										  const std::vector<Points<T>> &sv_t_liste) {
 
-	int nb_sph { azim_liste.size() };
-	for (int i { 0 }; i < nb_sph; ++i) {
-		for (int j { 0 }; j < i; ++j) {
-			int k { i - 1 - j };
+	size_t nb_sph { azim_liste.size() };
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		for (size_t j { 0 }; j < i; ++j) {
+			size_t k { i - 1 - j };
 			azim_liste[i] = sv_r_liste[k].transpose() * azim_liste[i];
 		}
 	}
@@ -222,46 +223,46 @@ void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<
 // Takes as input p3d_liste, sv_u_liste, sv_r_liste and sv_t_liste
 // and generates as output sv_u_liste and sv_e_liste
 
-	int nb_sph { p3d_liste.size() };
-	int nb_pts { p3d_liste[0].size() };
+	size_t nb_sph { p3d_liste.size() };
+	size_t nb_pts { p3d_liste[0].size() };
 
 	std::vector<Points<T>> center_liste { };
 	centers_determination(sv_r_liste, sv_t_liste, center_liste);
 
 	if (sv_e_liste.size() < (nb_sph - 1)) {
-		for (int i { sv_e_liste.size() }; i < (nb_sph - 1); ++i) {
+		for (size_t i { sv_e_liste.size() }; i < (nb_sph - 1); ++i) {
 			sv_e_liste.push_back(0);
 		}
 	} else {
-		for (int i { 0 }; i < (nb_sph - 1); ++i) {
+		for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
 			sv_e_liste[i] = 0;
 		}
 	}
 
-	for (int j { 0 }; j < nb_pts; ++j) {
+	for (size_t j { 0 }; j < nb_pts; ++j) {
 		std::vector<Points<T>> azim_liste { };
-		for (int i { 0 }; i < nb_sph; ++i) {
+		for (size_t i { 0 }; i < nb_sph; ++i) {
 			azim_liste.push_back(p3d_liste[i][j]);
 		}
-		azim_liste = azim_determination(azim_liste, sv_r_liste, sv_t_liste);
+		azim_determination(azim_liste, sv_r_liste, sv_t_liste);
 		std::vector<T> rayons { };
 		try {
 			rayons = intersection_bis(center_liste, azim_liste);
-			for (int k { 0 }; k < nb_sph; ++k) {
+			for (size_t k { 0 }; k < nb_sph; ++k) {
 				sv_u_liste[k][j] = rayons[k];
 			}
 		} catch (...) {
-			for (int k { 0 }; k < nb_sph; ++k) {
+			for (size_t k { 0 }; k < nb_sph; ++k) {
 				rayons[k] = sv_u_liste[k][j];
 			}
 		}
 		std::vector<Points<T>> inter_liste { };
 
-		for (int i { 0 }; i < nb_sph; ++i) {
+		for (size_t i { 0 }; i < nb_sph; ++i) {
 			inter_liste[i] = center_liste[i] + azim_liste[i] * rayons[i];
 		}
 
-		for (int i { 0 }; i < (nb_sph - 1); ++i) {
+		for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
 			Points<T> p { inter_liste[i] - inter_liste[i + 1] };
 			T n { p.norm() };
 			sv_e_liste[i] = sv_e_liste[i] > n ? sv_e_liste[i] : n;
@@ -278,17 +279,44 @@ void pose_scene (const std::vector<Vec_Points<T>> &p3d_liste,
 				 Vec_Points<T> &sv_scene,
 				 std::vector<Points<T>> &center_liste) {
 
-	int nb_sph { p3d_liste.size() };
-	int nb_pts { p3d_liste[0].size() };
+	size_t nb_sph { p3d_liste.size() };
+	size_t nb_pts { p3d_liste[0].size() };
 
 	centers_determination(sv_r_liste, sv_t_liste, center_liste);
 
-
 	// If sv_scene empty, fill with zeros
 	if (sv_scene.size() < nb_pts) {
-		for (int i{0}; i < nb_pts; ++i) {
+		for (size_t i{0}; i < nb_pts; ++i) {
 			sv_scene.push_back(0, 0, 0);
 		}
+	}
+
+	for (size_t j { 0 }; j < nb_pts; ++j) {
+		std::vector<Points<T>> azim_liste { };
+		for (size_t i { 0 }; i < nb_sph; ++i) {
+			azim_liste.push_back(p3d_liste[i][j]);
+		}
+		azim_liste = azim_determination(azim_liste, sv_r_liste, sv_t_liste);
+		std::vector<T> rayons { };
+		try {
+			rayons = intersection_bis(center_liste, azim_liste);
+		} catch (...) {
+			for (size_t k { 0 }; k < nb_sph; ++k) {
+				rayons[k] = sv_u_liste[k][j];
+			}
+		}
+		std::vector<Points<T>> inter_liste { };
+
+		for (size_t i { 0 }; i < nb_sph; ++i) {
+			inter_liste[i] = center_liste[i] + azim_liste[i] * rayons[i];
+		}
+
+		Points<T> inter { };
+		for (size_t i {0}; i < inter_liste.size(); ++i) {
+			inter = inter + inter_liste[i];
+		}
+		sv_scene[j] = inter / inter_liste.size();
+
 	}
 
 
@@ -356,7 +384,7 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 		++count;
 		T sv_t_norm { 0 };
-		for (int i {0}; i < sv_t_liste.size(); ++i) {
+		for (size_t i {0}; i < sv_t_liste.size(); ++i) {
 			sv_t_norm += (sv_t_liste[i].norm());
 		}
 

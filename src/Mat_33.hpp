@@ -24,7 +24,7 @@ public:
 	Mat_33<T> & operator=(Mat_33<T> &&a);
 	Points<T> operator*(const Points<T> &b) const;
 	Mat_33<T> operator+(const Mat_33<T> &a) const;
-	const T * operator[](const size_t i) const;
+	T * operator[](const size_t i) const;
 	virtual ~Mat_33();
 	friend std::ostream & operator <<(std::ostream & out, const Mat_33<T> &a) {
 		out << "[[" << a.mat[0][0] << " " << a.mat[0][1] << " " << a.mat[0][2] << "]" << std::endl;
@@ -253,7 +253,7 @@ inline Mat_33<T> Mat_33<T>::operator+(const Mat_33<T> &a) const{
 }
 
 template <typename T>
-inline const T * Mat_33<T>::operator[](const size_t i) const{
+inline T * Mat_33<T>::operator[](const size_t i) const{
 	if (i < 3) {
 		return mat[i];
 	} else {

@@ -21,6 +21,7 @@ public:
 	Points<T> operator-(const Points<T> &a) const;
 	T operator*(const Points<T> &a) const;
 	Points<T> operator*(const T c) const;
+	Points<T> operator/(const T c) const;
 	Points<T> & operator=(const Points<T> &a);
 	Points<T> & operator=(Points<T> &&a);
 	const T & operator[](const size_t i) const;
@@ -125,6 +126,11 @@ inline Points<T> Points<T>::operator*(const T c) const{
 	return temp;
 }
 
+template <typename T>
+inline Points<T> Points<T>::operator/(const T c) const{
+	Points<T> temp {m_pA->at(0) / c, m_pA->at(1) / c, m_pA->at(2) / c};
+	return temp;
+}
 
 template <typename T>
 inline const T & Points<T>::operator[](const size_t i) const{
