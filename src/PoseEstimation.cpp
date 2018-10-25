@@ -13,6 +13,7 @@
 #include "Vec_Points.hpp"
 #include "Estimation.hpp"
 #include <chrono>
+#include "Print_Data.hpp"
 
 std::string GetCurrentWorkingDir( void ) {
 // gets the current working directory
@@ -111,6 +112,8 @@ int main() {
 		// Error opening the file
 		return 1;
 	}
+
+	print (positions);
 
 	return 0;
 }
