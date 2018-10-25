@@ -16,6 +16,7 @@
 #include "Mat_33.hpp"
 #include "Vec_Points.hpp"
 #include "Print_Data.hpp"
+#include <cmath>
 
 template <typename T>
 void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const std::vector<std::vector<T>> sv_u_liste,
@@ -417,8 +418,14 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 	T sv_e_old { 0 };
 	T sv_e_norm { 1 };
+	int count { 0 };
 
-	while (abs(sv_e_norm - sv_e_old) > error_max) {
+	T diff_error { sv_e_norm - sv_e_old };
+
+	while (diff_error > error_max) {
+
+		sv_e_old = sv_e_norm;
+		count ++;
 
 		estimation_rot_trans (p3d_liste, sv_u_liste,
 							  sv_r_liste, sv_t_liste);
@@ -437,6 +444,8 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 		}
 
 		sv_e_norm = sv_e_liste.size() * max_num / sv_t_norm;
+		diff_error = (sv_e_norm - sv_e_old) > 0 ? (sv_e_norm - sv_e_old):(sv_e_old - sv_e_norm);
+
 	}
 
 	// Initialize positions
