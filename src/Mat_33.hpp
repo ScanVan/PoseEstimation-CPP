@@ -187,35 +187,6 @@ inline Mat_33<T> Mat_33<T>::transpose() const {
 	return A;
 }
 
-
-/*
-template <typename T>
-inline Mat_33<T> Mat_33<T>::inv() const {
-
-	using namespace cv;
-
-	Mat m(3, 3, CV_64FC1);
-	m.at<double>(0, 0) = mat[0][0];
-	m.at<double>(0, 1) = mat[0][1];
-	m.at<double>(0, 2) = mat[0][2];
-	m.at<double>(1, 0) = mat[1][0];
-	m.at<double>(1, 1) = mat[1][1];
-	m.at<double>(1, 2) = mat[1][2];
-	m.at<double>(2, 0) = mat[2][0];
-	m.at<double>(2, 1) = mat[2][1];
-	m.at<double>(2, 2) = mat[2][2];
-
-	Mat res(3, 3, CV_64FC1);
-	res = m.inv();
-
-	Mat_33<T> temp {res.at<double>(0, 0), res.at<double>(0, 1), res.at<double>(0, 2),
-					res.at<double>(1, 0), res.at<double>(1, 1), res.at<double>(1, 2),
-					res.at<double>(2, 0), res.at<double>(2, 1), res.at<double>(2, 2)};
-
-	return temp;
-}
-*/
-
 template <typename T>
 inline Mat_33<T> Mat_33<T>::inv() const {
 
@@ -241,8 +212,6 @@ inline Mat_33<T> Mat_33<T>::inv() const {
 
 	return (adjugate * (1/det));
 }
-
-
 
 template <typename T>
 inline Mat_33<T> & Mat_33<T>::operator=(const Mat_33<T> &a) {

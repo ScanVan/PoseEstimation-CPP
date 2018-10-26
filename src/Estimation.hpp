@@ -26,7 +26,7 @@
 #include "Print_Data.hpp"
 
 template <typename T>
-void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const std::vector<std::vector<T>> sv_u_liste,
+inline void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const std::vector<std::vector<T>> sv_u_liste,
 						   std::vector<Mat_33<T>> &sv_r_liste, std::vector<Points<T>> &sv_t_liste)
 // Takes as inputs p3d_liste and sv_u_liste,
 // and generates outputs sv_r_liste, sv_t_liste
@@ -73,7 +73,7 @@ void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const st
 }
 
 template <typename T>
-std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const std::vector<Points<T>> &liste_azim ){
+inline std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const std::vector<Points<T>> &liste_azim ){
 
 	size_t nb_pts { liste_p.size() };
 	Mat_33<T> sum_v { };
@@ -123,7 +123,7 @@ std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const st
 
 
 template <typename T>
-void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std::vector<Points<T>> &sv_t_liste,
+inline void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std::vector<Points<T>> &sv_t_liste,
 							std::vector<Points<T>> &center_liste)
 // Takes sv_r_liste and sv_t_liste as inputs
 // Generates center_liste as output
@@ -150,9 +150,9 @@ void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, const std:
 }
 
 template<typename T>
-std::vector<Points<T>> azim_determination(std::vector<Points<T>> &azim_liste,
-										  const std::vector<Mat_33<T>> &sv_r_liste,
-										  const std::vector<Points<T>> &sv_t_liste) {
+inline std::vector<Points<T>> azim_determination(std::vector<Points<T>> &azim_liste,
+		        								  const std::vector<Mat_33<T>> &sv_r_liste,
+				        						  const std::vector<Points<T>> &sv_t_liste) {
 
 	size_t nb_sph { azim_liste.size() };
 	for (size_t i { 0 }; i < nb_sph; ++i) {
@@ -168,7 +168,7 @@ std::vector<Points<T>> azim_determination(std::vector<Points<T>> &azim_liste,
 
 
 template<typename T>
-void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> &sv_u_liste, const std::vector<Mat_33<T>> &sv_r_liste,
+inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> &sv_u_liste, const std::vector<Mat_33<T>> &sv_r_liste,
 		const std::vector<Points<T>> &sv_t_liste, std::vector<T> &sv_e_liste) {
 // Takes as input p3d_liste, sv_u_liste, sv_r_liste and sv_t_liste
 // and generates as output sv_u_liste and sv_e_liste
