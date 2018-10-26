@@ -58,22 +58,6 @@ void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const st
 		sv_corr_liste.push_back(sv_diff_liste[i] * sv_diff_liste[i + 1]);
 	}
 
-	// check size of sv_r_liste. If it is empty fill with zero Mat_33
-	if (sv_r_liste.size() < (nb_sph - 1)) {
-		Mat_33<T> zm { };
-		for (size_t i { sv_r_liste.size() }; i < (nb_sph - 1); ++i) {
-			sv_r_liste.push_back(zm);
-		}
-	}
-
-	// check size of sv_t_liste. If it is empty fill with zero Points
-	if (sv_t_liste.size() < (nb_sph - 1)) {
-		Points<T> zp { };
-		for (size_t i { sv_t_liste.size() }; i < (nb_sph - 1); ++i) {
-			sv_t_liste.push_back(zp);
-		}
-	}
-
 	for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
 		// Matrices for SVD computation
 		Mat_33<T> svd_Ut { };
@@ -86,46 +70,6 @@ void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const st
 
 	}
 
-}
-
-template <typename T>
-inline Points<T> intersection (const Mat_33<T> &c, const Mat_33<T> &azim){
-// Takes as input matrices c and azim and returns a point
-
-	// For accumulating the results
-	std::vector<Mat_33<T>> v{};
-	std::vector<Points<T>> vp{};
-
-	for (int i{0}; i<3; ++i) {
-		// takes row i from azim
-		T a0 = azim[i][0];
-		T a1 = azim[i][1];
-		T a2 = azim[i][2];
-
-		// computes identity(3) - azim[i]' * azim[i]
-		Mat_33<T> v1{1 - a0*a0 ,    -a0*a1 ,    -a0*a2,
-						-a1*a0 , 1 - a1*a1 ,    -a1*a2,
-						-a2*a0 ,    -a2*a1 , 1 - a2*a2};
-
-		v.push_back(v1);
-
-		// takes the row of c
-		Points<T> row {c[i][0], c[i][1], c[i][2]};
-
-		Points<T> vp1 {v1 * row};
-
-		vp.push_back(vp1);
-	}
-
-	Mat_33<T> sum_v = v[0] + v[1] + v[2];
-	Points<T> sum_vp = vp[0] + vp[1] + vp[2];
-
-	// Computes the inverse of the matrix
-	Mat_33<T> sum_v_inv {sum_v.inv()};
-
-	Points<T> inter {sum_v_inv * sum_vp};
-
-	return inter;
 }
 
 template <typename T>
@@ -162,9 +106,6 @@ std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const st
 	Points<T> inter { sum_v.inv() * sum_vp };
 
 	std::vector<T> rayons { };
-	for (size_t i { 0 }; i < nb_pts; ++i) {
-		rayons.push_back(0);
-	}
 
 	for (size_t i { 0 }; i < nb_pts; ++i) {
 		Points<T> centre { liste_p[i] };
@@ -172,9 +113,9 @@ std::vector<T> intersection_bis (const std::vector<Points<T>> &liste_p, const st
 		Points<T> inter_proj { azim * ((inter - centre) * azim) / (azim * azim) };
 		T direction { inter_proj * azim };
 		if (direction < 0) {
-			rayons[i] = -inter_proj.norm();
+			rayons.push_back(-inter_proj.norm());
 		} else {
-			rayons[i] = inter_proj.norm();
+			rayons.push_back(inter_proj.norm());
 		}
 	}
 	return rayons;
@@ -282,14 +223,8 @@ void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<
 
 		std::vector<Points<T>> inter_liste { };
 
-		// Initialize inter_liste
 		for (size_t i { 0 }; i < nb_sph; ++i) {
-			Points<T> p {};
-			inter_liste.push_back(p);
-		}
-
-		for (size_t i { 0 }; i < nb_sph; ++i) {
-			inter_liste[i] = center_liste[i] + azim_liste[i] * rayons[i];
+			inter_liste.push_back (center_liste[i] + azim_liste[i] * rayons[i]);
 		}
 
 		for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
@@ -367,10 +302,10 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 	size_t nb_sph = p3d_liste.size();
 	size_t nb_pts = p3d_liste[0].size();
 
-	std::vector<std::vector<T>> sv_u_liste {};
-	std::vector<Points<T>> sv_t_liste {};
-	std::vector<Mat_33<T>> sv_r_liste {};
-	std::vector<T> sv_e_liste {};
+	std::vector<std::vector<T>> sv_u_liste { };
+	std::vector<Points<T>> sv_t_liste { };
+	std::vector<Mat_33<T>> sv_r_liste { };
+	std::vector<T> sv_e_liste { };
 
 	// Initialize sv_u_liste
 	std::vector<T> ones(nb_pts, 1);
@@ -401,13 +336,12 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 		sv_e_old = sv_e_norm;
 		num_iter++;
 
-		estimation_rot_trans (p3d_liste, sv_u_liste,
-							  sv_r_liste, sv_t_liste);
+		estimation_rot_trans(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste);
 
-		estimation_rayons (p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_e_liste);
+		estimation_rayons(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_e_liste);
 
 		T sv_t_norm { 0 };
-		for (size_t i {0}; i < sv_t_liste.size(); ++i) {
+		for (size_t i { 0 }; i < sv_t_liste.size(); ++i) {
 			sv_t_norm += (sv_t_liste[i].norm());
 		}
 
@@ -418,20 +352,20 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 		}
 
 		sv_e_norm = sv_e_liste.size() * max_num / sv_t_norm;
-		diff_error = (sv_e_norm - sv_e_old) > 0 ? (sv_e_norm - sv_e_old):(sv_e_old - sv_e_norm);
+		T diff_temp { sv_e_norm - sv_e_old };
+		diff_error = diff_temp > 0 ? diff_temp : -diff_temp;
 
 	}
 
 	// Initialize positions
 	if (positions.size() < nb_sph) {
 		for (size_t i { 0 }; i < nb_sph; ++i) {
-			Points<T> p {};
+			Points<T> p { };
 			positions.push_back(p);
 		}
 	}
 
-	pose_scene (p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste,
-			    sv_scene, positions);
+	pose_scene(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_scene, positions);
 
 }
 

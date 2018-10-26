@@ -169,7 +169,7 @@ bool Vec_Points<T>::save_vecpoints(std::string path) const {
 
 	outputFile.open (path);
 	if (outputFile.is_open()) {
-		outputFile << "[";
+		outputFile << "sv_scene_outc = [";
 		for (size_t i{0}; i<m_pV->size()-1; i++) {
 			outputFile << "[" << to_string_with_precision((*m_pV)[i][0], 10) << ", " <<
 					to_string_with_precision((*m_pV)[i][1], 10) << ", " <<
@@ -178,6 +178,9 @@ bool Vec_Points<T>::save_vecpoints(std::string path) const {
 		outputFile << "[" << to_string_with_precision((*m_pV)[m_pV->size()-1][0], 10) << ", " <<
 							to_string_with_precision((*m_pV)[m_pV->size()-1][1], 10) << ", " <<
 							to_string_with_precision((*m_pV)[m_pV->size()-1][2], 10) << "]];\n";
+
+
+
 		outputFile.close();
 	} else {
 		std::cerr << "Error: Unable to open the file \"" << path << "\"";

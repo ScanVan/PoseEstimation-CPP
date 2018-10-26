@@ -31,6 +31,7 @@ public:
 	Mat_33<T> & operator=(const Mat_33<T> &a);
 	Mat_33<T> & operator=(Mat_33<T> &&a);
 	Points<T> operator*(const Points<T> &b) const;
+	Mat_33<T> operator*(const T &a) const;
 	Mat_33<T> operator+(const Mat_33<T> &a) const;
 	T * operator[](const size_t i) const;
 	virtual ~Mat_33();
@@ -187,6 +188,7 @@ inline Mat_33<T> Mat_33<T>::transpose() const {
 }
 
 
+/*
 template <typename T>
 inline Mat_33<T> Mat_33<T>::inv() const {
 
@@ -212,6 +214,35 @@ inline Mat_33<T> Mat_33<T>::inv() const {
 
 	return temp;
 }
+*/
+
+template <typename T>
+inline Mat_33<T> Mat_33<T>::inv() const {
+
+	Mat_33 minors { mat[1][1] * mat[2][2] - mat[2][1] * mat[1][2],
+					mat[1][0] * mat[2][2] - mat[2][0] * mat[1][2],
+					mat[1][0] * mat[2][1] - mat[2][0] * mat[1][1],
+
+					mat[0][1] * mat[2][2] - mat[2][1] * mat[0][2],
+					mat[0][0] * mat[2][2] - mat[2][0] * mat[0][2],
+					mat[0][0] * mat[2][1] - mat[2][0] * mat[0][1],
+
+					mat[0][1] * mat[1][2] - mat[1][1] * mat[0][2],
+					mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2],
+					mat[0][0] * mat[1][1] - mat[1][0] * mat[0][1] };
+
+	Mat_33 cofactor { minors.mat[0][0], -minors.mat[0][1], minors.mat[0][2],
+					  -minors.mat[1][0], minors.mat[1][1], -minors.mat[1][2],
+					  minors.mat[2][0], -minors.mat[2][1], minors.mat[2][2] };
+
+	Mat_33 adjugate { cofactor.transpose() };
+
+	T det = mat[0][0] * cofactor.mat[0][0] + mat[0][1] * cofactor.mat[0][1] + mat[0][2] * cofactor.mat[0][2];
+
+	return (adjugate * (1/det));
+}
+
+
 
 template <typename T>
 inline Mat_33<T> & Mat_33<T>::operator=(const Mat_33<T> &a) {
@@ -249,6 +280,14 @@ inline Points<T> Mat_33<T>::operator*(const Points<T> &b) const{
 	T to_c1{mat[1][0] * b[0] + mat[1][1] * b[1] + mat[1][2] * b[2]};
 	T to_c2{mat[2][0] * b[0] + mat[2][1] * b[1] + mat[2][2] * b[2]};
 	Points<T> temp{to_c0, to_c1, to_c2};
+	return temp;
+}
+
+template <typename T>
+inline Mat_33<T> Mat_33<T>::operator*(const T &a) const {
+	Mat_33<T> temp {mat[0][0] * a, mat[0][1] * a, mat[0][2] * a,
+		            mat[1][0] * a, mat[1][1] * a, mat[1][2] * a,
+					mat[2][0] * a, mat[2][1] * a, mat[2][2] * a};
 	return temp;
 }
 

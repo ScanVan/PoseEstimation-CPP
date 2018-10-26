@@ -87,12 +87,14 @@ int main() {
 	std::cout << "Execution time: " << duration << " microseconds" << std::endl;
 
 	// setup path to save the output result
-	std::string path_out_data1 = path2data + "sv_scene.txt";
+	std::string path_out_data1 = path2data + "sv_scene_cpp.m";
 
 	if (sv_scene.save_vecpoints(path_out_data1)) {
 		// Error opening the file
 		return 1;
 	}
+
+
 
 	return 0;
 }
