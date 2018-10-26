@@ -1,7 +1,7 @@
 //============================================================================
 // Name        : PoseEstimation.cpp
 // Author      : Marcelo Kaihara
-// Version     :
+// Version     : 2.0
 // Copyright   : 
 // Description : Pose Estimation algorithm implemented in C++
 //============================================================================

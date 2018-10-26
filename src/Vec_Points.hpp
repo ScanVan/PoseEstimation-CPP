@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : Vec_Points.hpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : Processing of vector of points
+//============================================================================
+
 #ifndef SRC_VEC_POINTS_HPP_
 #define SRC_VEC_POINTS_HPP_
 

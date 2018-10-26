@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : Points.hpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : 1x3 vector operation
+//============================================================================
+
 #ifndef SRC_POINTS_HPP_
 #define SRC_POINTS_HPP_
 

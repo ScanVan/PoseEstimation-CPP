@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : Print_Data.hpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : Prints contents of data structure for debug purposes
+//============================================================================
+
 #ifndef SRC_PRINT_DATA_HPP_
 #define SRC_PRINT_DATA_HPP_
 

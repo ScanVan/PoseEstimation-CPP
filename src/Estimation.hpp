@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : Estimation.hpp
+// Author      : Marcelo Kaihara
+// Version     : 2.0
+// Copyright   :
+// Description : Pose Estimation algorithm implemented in C++
+//============================================================================
+
 #ifndef SRC_ESTIMATION_HPP_
 #define SRC_ESTIMATION_HPP_
 

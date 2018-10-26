@@ -1,3 +1,11 @@
+//============================================================================
+// Name        : Mat_33.hpp
+// Author      : Marcelo Kaihara
+// Version     : 1.0
+// Copyright   :
+// Description : 3x3 Matrix operation
+//============================================================================
+
 #ifndef SRC_MAT_33_HPP_
 #define SRC_MAT_33_HPP_
 
