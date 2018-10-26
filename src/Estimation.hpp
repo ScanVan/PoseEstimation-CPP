@@ -16,7 +16,6 @@
 #include "Mat_33.hpp"
 #include "Vec_Points.hpp"
 #include "Print_Data.hpp"
-#include <cmath>
 
 template <typename T>
 void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const std::vector<std::vector<T>> sv_u_liste,
@@ -349,46 +348,13 @@ void pose_scene (const std::vector<Vec_Points<T>> &p3d_liste,
 		sv_scene[j] = inter / inter_liste.size();
 
 	}
-
-
-
-
-
-
-	/*size_t longueur {p3d_1.size()};
-
-	Points<T> c1 {0, 0, 0};
-	Points<T> c2 {sv_t_12};	// c2 = c1 + sv_t_12
-	Points<T> c3 {sv_t_12 + sv_r_12 * sv_t_23};	// c3 = c2 + sv_r_12 * sv_t_23
-
-	Vec_Points<T> azim1m {p3d_1};
-	Vec_Points<T> azim2m {(p3d_2 * sv_r_23) * sv_r_31};
-	Vec_Points<T> azim3m {p3d_3 * sv_r_31};
-
-	for (size_t i{0}; i < longueur; ++i) {
-
-		Points<T> azim1 {azim1m[i]};
-		Points<T> azim2 {azim2m[i]};
-		Points<T> azim3 {azim3m[i]};
-
-		Mat_33<T> c {c1, c2, c3};
-		Mat_33<T> azim { azim1, azim2, azim3 };
-
-		Points<T> inter{};
-		inter = intersection (c, azim);
-
-		sv_scene[i] = inter;
-	}*/
-
 }
 
 
 template <typename T>
 void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 					  Vec_Points<T> &sv_scene,
-					  std::vector<Points<T>> &positions) {
-
-// modified for n-tuple
+					  std::vector<Points<T>> &positions, size_t &num_iter) {
 
 	size_t nb_sph = p3d_liste.size();
 	size_t nb_pts = p3d_liste[0].size();
@@ -418,14 +384,14 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 	T sv_e_old { 0 };
 	T sv_e_norm { 1 };
-	int count { 0 };
+	num_iter = 0;
 
 	T diff_error { sv_e_norm - sv_e_old };
 
 	while (diff_error > error_max) {
 
 		sv_e_old = sv_e_norm;
-		count ++;
+		num_iter++;
 
 		estimation_rot_trans (p3d_liste, sv_u_liste,
 							  sv_r_liste, sv_t_liste);
