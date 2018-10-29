@@ -14,6 +14,7 @@
 #include "Estimation.hpp"
 #include <chrono>
 #include "Print_Data.hpp"
+#include "test_prior_model_nuple.hpp"
 
 std::string GetCurrentWorkingDir( void ) {
 // gets the current working directory
@@ -26,6 +27,17 @@ std::string GetCurrentWorkingDir( void ) {
 }
 
 int main() {
+
+	simulation(42,3,1e-8);
+	simulation(16,3,1e-8);
+	simulation(10,3,1e-8);
+
+	return 0;
+
+}
+
+/*
+int main2() {
 
 	// Set path to input data
 	std::string path2data = GetCurrentWorkingDir() + "/data/";
@@ -98,3 +110,4 @@ int main() {
 
 	return 0;
 }
+*/

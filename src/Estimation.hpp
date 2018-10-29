@@ -297,7 +297,7 @@ void pose_scene (const std::vector<Vec_Points<T>> &p3d_liste,
 template <typename T>
 void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 					  Vec_Points<T> &sv_scene,
-					  std::vector<Points<T>> &positions, size_t &num_iter) {
+					  std::vector<Points<T>> &positions) {
 
 	size_t nb_sph = p3d_liste.size();
 	size_t nb_pts = p3d_liste[0].size();
@@ -327,14 +327,12 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 	T sv_e_old { 0 };
 	T sv_e_norm { 1 };
-	num_iter = 0;
 
 	T diff_error { sv_e_norm - sv_e_old };
 
 	while (diff_error > error_max) {
 
 		sv_e_old = sv_e_norm;
-		num_iter++;
 
 		estimation_rot_trans(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste);
 
