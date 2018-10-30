@@ -13,6 +13,9 @@
 #include "Mat_33.hpp"
 
 template <typename T>
+class Mat_33;
+
+template <typename T>
 class Points {
 private:
 	std::array <T, 3> *m_pA;
@@ -25,6 +28,7 @@ public:
 	T GetValue (size_t pos) const;
 	virtual ~Points();
 	T norm() const;
+	Mat_33<T> outer(const Points<T> &a) const;
 	Points<T> operator+(const Points<T> &a) const;
 	Points<T> operator-(const Points<T> &a) const;
 	T operator*(const Points<T> &a) const;
@@ -81,6 +85,24 @@ inline T Points<T>::norm() const{
 // Computes the norm of a point
 	T temp = sqrt(m_pA->at(0)*m_pA->at(0) + m_pA->at(1)*m_pA->at(1) + m_pA->at(2)*m_pA->at(2));
 	return temp;
+}
+
+template <typename T>
+inline Mat_33<T> Points<T>::outer(const Points<T> &a) const {
+	Mat_33<T> mat{};
+	mat[0][0] = m_pA->at(0) * (a.m_pA)->at(0);
+	mat[0][1] = m_pA->at(0) * (a.m_pA)->at(1);
+	mat[0][2] = m_pA->at(0) * (a.m_pA)->at(2);
+
+	mat[1][0] = m_pA->at(1) * (a.m_pA)->at(0);
+	mat[1][1] = m_pA->at(1) * (a.m_pA)->at(1);
+	mat[1][2] = m_pA->at(1) * (a.m_pA)->at(2);
+
+	mat[2][0] = m_pA->at(2) * (a.m_pA)->at(0);
+	mat[2][1] = m_pA->at(2) * (a.m_pA)->at(1);
+	mat[2][2] = m_pA->at(2) * (a.m_pA)->at(2);
+
+	return mat;
 }
 
 template <typename T>

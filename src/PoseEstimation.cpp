@@ -28,10 +28,30 @@ std::string GetCurrentWorkingDir( void ) {
 
 int main() {
 
+	std::cout << "simulation(42,3,1e-8);" << std::endl;
 	simulation(42,3,1e-8);
-	simulation(16,3,1e-8);
-	simulation(10,3,1e-8);
+	/*std::cout << "simulation(42,6,1e-8);" << std::endl;
+	simulation(42,6,1e-8);
+	std::cout << "simulation(42,9,1e-8);" << std::endl;
+	simulation(42,9,1e-8);
 
+
+	std::cout << "simulation(16,3,1e-8);" << std::endl;
+	simulation(16,3,1e-8);
+	std::cout << "simulation(16,6,1e-8);" << std::endl;
+	simulation(16,6,1e-8);
+	std::cout << "simulation(16,9,1e-8);" << std::endl;
+	simulation(16,9,1e-8);
+
+	std::cout << "simulation(19,3,1e-8);" << std::endl;
+	simulation(10,3,1e-8);
+	std::cout << "simulation(10,6,1e-8);" << std::endl;
+	simulation(10,6,1e-8);
+	std::cout << "simulation(10,9,1e-8);" << std::endl;
+	simulation(10,9,1e-8);
+
+	std::cout << "end" << std::endl;
+*/
 	return 0;
 
 }
