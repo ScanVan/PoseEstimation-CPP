@@ -139,19 +139,32 @@ void superposition (const Vec_Points<double> &data1, const Vec_Points<double> &d
 	size_t longueur { data1.size() };
 	Vec_Points<double> data1_me { };
 	Vec_Points<double> data2_me { };
+
 	misaechelle (data1, data2, data1_me, data2_me);
+
 	Mat_33<double> sv_corr_12 { };
 	Points<double> sv_cent_1 { };
 	Points<double> sv_cent_2 { };
+
+	for (size_t i{0}; i < longueur; ++i) {
+		sv_cent_1 = sv_cent_1 + data1_me[i];
+		sv_cent_2 = sv_cent_2 + data2_me[i];
+	}
+	sv_cent_1 = sv_cent_1 / longueur;
+	sv_cent_2 = sv_cent_2 / longueur;
+
 	for (size_t i {0}; i < longueur; ++i) {
 		Points<double> sv_diff_1 { data1_me[i] - sv_cent_1 };
 		Points<double> sv_diff_2 { data2_me[i] - sv_cent_2 };
 		sv_corr_12 = sv_corr_12 + sv_diff_1.outer(sv_diff_2);
 	}
+
 	Mat_33<double> svd_Ut_12 {}, svd_V_12 {};
 	sv_corr_12.svd(svd_Ut_12, svd_V_12);
+
 	Mat_33<double> rotation {};
 	rotation.svd_rotation(svd_V_12, svd_Ut_12);
+
 	Points<double> translation { sv_cent_2 - rotation * sv_cent_1};
 	if (data1_sp.size() < longueur) {
 		Points<double> p{};
@@ -167,33 +180,40 @@ void superposition (const Vec_Points<double> &data1, const Vec_Points<double> &d
 }
 
 void simulation (int num_model, int num_cam, double stop_crit) {
+
 	std::string dirname {std::to_string(num_model)};
 	std::string folder { "./prior_generated_test_models/" };
 	Vec_Points<double> data {};
 	importation_data (folder + dirname + "/model.dat", data);
 	Vec_Points<double> centers_ori_1 {};
 	importation_centers (folder + dirname + "/centers_R1.txt", num_cam, centers_ori_1);
+
 	std::vector<Vec_Points<double>> spheres {};
 	generate_unit_sphere(data, centers_ori_1, spheres);
+
+	std::cout << std::setprecision(12);
+	//std::cout << centers_ori_1;
+
 	Vec_Points<double> sv_scene {};
 	std::vector<Points<double>> positions {};
 	pose_estimation (spheres, stop_crit, sv_scene, positions);
+
+	/*std::cout << "positions: " << std::endl;
+
+	for (const auto &x:positions) {
+		std::cout << x << std::endl;
+	}*/
+
 	Vec_Points<double> x_0 {};
 	for (const auto &x:positions) {
 		x_0.push_back(x);
 	}
 	Vec_Points<double> x_1 { sv_scene };
-
 	Vec_Points<double> centers_ori{}, centers_est{};
-
 	superposition(centers_ori_1, x_0, centers_ori, centers_est);
 
-	std::cout << centers_ori_1;
-	std::cout << x_0;
-
-	std::cout << std::setprecision(12);
-	std::cout << centers_ori;
-	std::cout << centers_est;
+	//std::cout << "centers_ori" << std::endl;
+	//std::cout << centers_ori;
 
 
 	Vec_Points<double> models_ori{}, models_est{};
@@ -210,7 +230,6 @@ void simulation (int num_model, int num_cam, double stop_crit) {
 	}
 
 	std::cout << num_model << " " << num_cam << " " << stop_crit << "done: error =>" << error << std::endl;
-
 }
 
 
