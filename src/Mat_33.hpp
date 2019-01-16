@@ -117,7 +117,7 @@ inline void Mat_33<T>::svd (Mat_33<T> &ut, Mat_33<T> &v) const{
 	m.at<double>(2,2)=mat[2][2];
 
 	Mat U, Vt, w;
-	SVDecomp (m, w, U, Vt);
+	SVDecomp (m, w, U, Vt, SVD::FULL_UV);
 
 	ut.mat[0][0]=U.at<double>(0,0);
 	ut.mat[0][1]=U.at<double>(1,0);
