@@ -33,6 +33,7 @@ public:
 	Points<T> operator*(const Points<T> &b) const;
 	Mat_33<T> operator*(const T &a) const;
 	Mat_33<T> operator+(const Mat_33<T> &a) const;
+	Mat_33<T> operator-(const Mat_33<T> &a) const;
 	T * operator[](const size_t i) const;
 	virtual ~Mat_33();
 	friend std::ostream & operator <<(std::ostream & out, const Mat_33<T> &a) {
@@ -265,6 +266,14 @@ inline Mat_33<T> Mat_33<T>::operator+(const Mat_33<T> &a) const{
 	Mat_33<T> temp {mat[0][0] + a.mat[0][0], mat[0][1] + a.mat[0][1], mat[0][2] + a.mat[0][2],
 					mat[1][0] + a.mat[1][0], mat[1][1] + a.mat[1][1], mat[1][2] + a.mat[1][2],
 					mat[2][0] + a.mat[2][0], mat[2][1] + a.mat[2][1], mat[2][2] + a.mat[2][2]};
+	return temp;
+}
+
+template <typename T>
+inline Mat_33<T> Mat_33<T>::operator-(const Mat_33<T> &a) const {
+	Mat_33<T> temp {mat[0][0] - a.mat[0][0], mat[0][1] - a.mat[0][1], mat[0][2] - a.mat[0][2],
+					mat[1][0] - a.mat[1][0], mat[1][1] - a.mat[1][1], mat[1][2] - a.mat[1][2],
+					mat[2][0] - a.mat[2][0], mat[2][1] - a.mat[2][1], mat[2][2] - a.mat[2][2]};
 	return temp;
 }
 
