@@ -212,7 +212,7 @@ inline std::vector<Points<T>> azim_determination(std::vector<Points<T>> &azim_li
 
 
 template<typename T>
-inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> &sv_u_liste, const std::vector<Mat_33<T>> &sv_r_liste,
+inline void estimation_rayons_old(const std::vector<Vec_Points<T>> &p3d_liste, std::vector<std::vector<T>> &sv_u_liste, const std::vector<Mat_33<T>> &sv_r_liste,
 		const std::vector<Points<T>> &sv_t_liste, std::vector<T> &sv_e_liste) {
 // Takes as input p3d_liste, sv_u_liste, sv_r_liste and sv_t_liste
 // and generates as output sv_u_liste and sv_e_liste
@@ -275,6 +275,83 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste, std::
 			Points<T> p { inter_liste[i] - inter_liste[i + 1] };
 			T n { p.norm() };
 			sv_e_liste[i] = sv_e_liste[i] > n ? sv_e_liste[i] : n;
+		}
+
+	}
+}
+
+template<typename T>
+inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
+							  std::vector<std::vector<T>> &sv_u_liste,
+							  const std::vector<Mat_33<T>> &sv_r_liste,
+							  const std::vector<Points<T>> &sv_t_liste,
+							  std::vector<T> &sv_e_liste) {
+// Input:
+// features directions  : p3d_liste, m x Vec_Points (vector of n Points)
+// estimated rotation   : sv_r_liste, (m-1) x Mat_33
+// estimated translation: sv_t_liste, (m-1) x Points
+// m is the number of spheres
+// n is the number of features
+// Output:
+// computed radius      : sv_u_liste, m x n single-value
+// computed errors		: sv_e_liste, m x n single-value
+
+	size_t nb_sph { p3d_liste.size() }; // this is m
+	size_t nb_pts { p3d_liste[0].size() }; // this is n
+
+	// center of all m spheres in the frame of the first one
+	// it contains the sphere centers
+	std::vector<Points<T>> center_liste { };
+
+	// Initialize center_liste
+	if (center_liste.size() < nb_sph) {
+		Points<T> p {};
+		for (size_t i{ center_liste.size() }; i < nb_sph; ++i ) {
+			center_liste.push_back(p);
+		}
+	}
+
+	centers_determination(sv_r_liste, sv_t_liste, center_liste);
+
+	// Initialize sv_e_liste
+	if (sv_e_liste.size() < (nb_sph - 1)) {
+		for (size_t i { sv_e_liste.size() }; i < (nb_sph - 1); ++i) {
+			sv_e_liste.push_back(0);
+		}
+	} else {
+		for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
+			sv_e_liste[i] = 0;
+		}
+	}
+
+	// Loop over the n features
+	for (size_t j { 0 }; j < nb_pts; ++j) {
+
+		// it stores the current feature direction on each of the m spheres
+		std::vector<Points<T>> azim_liste { };
+
+		for (size_t i { 0 }; i < nb_sph; ++i) {
+			azim_liste.push_back(p3d_liste[i][j]);
+		}
+
+		azim_determination(azim_liste, sv_r_liste, sv_t_liste);
+
+		Points<T> inter { };
+
+		// Calculates the optimal intersection point inter passing the current feature centers and directions
+		optimal_intersection(center_liste, azim_liste, inter);
+
+		// The new radius of the feature
+
+		for (size_t k{ 0 }; k < nb_sph; ++k) {
+			// Using the optimal intersection (inter), the new radius is computed
+			sv_u_liste[k][j] = azim_liste[k] * (inter - center_liste[k]);
+		}
+
+
+		for (size_t k{ 0 }; k < nb_sph; ++k) {
+			// the error is computed
+			sv_e_liste[k][j] = (center_liste[k] + sv_u_liste[k][j] * azim_liste[k] - inter).norm();
 		}
 
 	}
