@@ -26,6 +26,50 @@
 #include "Print_Data.hpp"
 
 template <typename T>
+void optimal_intersection (const std::vector<Points<T>> &t_p, const std::vector<Points<T>> &t_d, Points<T> &t_inter)
+// Inputs:
+// t_p is number_of_spheres x points
+// t_d is number_of_spheres x direction
+// Output:
+// t_inter is a point
+{
+	// t_size contains the number of spheres
+	size_t t_size { t_p.size() };
+
+	// t_w is a 3x3 matrix initialized to all zeros
+	Mat_33<T> t_w { };
+
+	// t_v is a point filled with zeros
+	Points<T> t_v { };
+
+	// t_e is 3x3 identity matrix
+	Mat_33<T> t_e { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+
+	// accumulation loop
+	for (size_t t_i { 0 }; t_i < t_size; ++t_i) {
+
+		Mat_33<T> t_t { };
+
+		// t_t = t_e - t_d[t_i]' * t_d[t_i]
+		// t_d[t_i] is a point
+		t_t = t_e - t_d[t_i].outer(t_d[t_i]);
+
+		// accumulation of the w successive components
+		t_w = t_w + t_t;
+
+		// accumulation of the v successive components
+		// t_t * t_p[t_i] is a 3x3 matrix * point' and returns a point
+		t_v = t_v + (t_t * t_p[t_i]);
+	}
+
+	// computation of the intersection point
+
+	// t_w.inv() * t_v is a 3x3 matrix * point' and returns a point
+	t_inter = t_w.inv() * t_v;
+}
+
+
+template <typename T>
 inline void estimation_rot_trans (const std::vector<Vec_Points<T>> &p3d_liste, const std::vector<std::vector<T>> sv_u_liste,
 						   std::vector<Mat_33<T>> &sv_r_liste, std::vector<Points<T>> &sv_t_liste)
 // Takes as inputs p3d_liste and sv_u_liste,
