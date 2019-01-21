@@ -281,6 +281,44 @@ inline void estimation_rayons_old(const std::vector<Vec_Points<T>> &p3d_liste, s
 }
 
 template<typename T>
+inline T iteration_error(const std::vector<std::vector<T>> &sv_e_liste,
+						 const std::vector<Points<T>> &est_trans) {
+// Input:
+// features_error		: sv_e_liste, m x n single-value
+// estimated translation: est_trans, (m - 1) x Points<T> (vector)
+// m is the number of spheres
+// n is the number of features
+// Output:
+// computed error		: a single floating-point value
+
+	// assuming that sv_liste has the correct size for the number of spheres and number of features
+	size_t nb_sph { sv_e_liste.size() }; // this is m
+	size_t nb_pts { sv_e_liste[0].size() }; // this is n
+
+	std::vector<T> max_radius_per_sphere { };
+	T max_radius_error { };
+	for (size_t j{0}; j < nb_sph; ++j) {
+		// search the max element of the vector for each sphere
+		auto maxe = std::max_element(sv_e_liste[j].begin(), sv_e_liste[j].end());
+		// update max_radius_error if *maxe is bigger
+		max_radius_error = (*maxe > max_radius_error ) ? (*maxe):max_radius_error;
+	}
+
+	std::vector<T> min_trans_vec { };
+	T min_translation { };
+	// Calculates the norm of the translation vectors and stores it in a std::vector
+	for (size_t j{0}; j < nb_sph-1; ++j) {
+		min_trans_vec.push_back(est_trans[j].norm());
+	}
+	// searches the min element of the vector of norms of translations
+	auto min_t = std::min_element(min_trans_vec.begin(), min_trans_vec.end());
+	min_translation = *min_t;
+
+	return max_radius_error/min_translation;
+
+}
+
+template<typename T>
 inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 							  std::vector<std::vector<T>> &sv_u_liste,
 							  const std::vector<Mat_33<T>> &sv_r_liste,
@@ -321,8 +359,10 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 			sv_e_liste.push_back(nullvec);
 		}
 	} else {
+		// if sv_e_liste.size() is > nb_sph, reset the size to nb_sph
+		sv_e_liste = { };
 		for (size_t i { 0 }; i < nb_sph; ++i) {
-			sv_e_liste[i] = nullvec;
+			sv_e_liste.push_back(nullvec);
 		}
 	}
 
