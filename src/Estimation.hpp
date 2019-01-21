@@ -300,9 +300,12 @@ inline T iteration_error(const std::vector<std::vector<T>> &sv_e_liste,
 	for (size_t j{0}; j < nb_sph; ++j) {
 		// search the max element of the vector for each sphere
 		auto maxe = std::max_element(sv_e_liste[j].begin(), sv_e_liste[j].end());
-		// update max_radius_error if *maxe is bigger
-		max_radius_error = (*maxe > max_radius_error ) ? (*maxe):max_radius_error;
+		// populate the vector containing the max element per sphere
+		max_radius_per_sphere.push_back(*maxe);
 	}
+	// search the max element of the max element per sphere
+	auto max_t = std::max_element(max_radius_per_sphere.begin(), max_radius_per_sphere.end());
+	max_radius_error = *max_t;
 
 	std::vector<T> min_trans_vec { };
 	T min_translation { };
