@@ -285,7 +285,7 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 							  std::vector<std::vector<T>> &sv_u_liste,
 							  const std::vector<Mat_33<T>> &sv_r_liste,
 							  const std::vector<Points<T>> &sv_t_liste,
-							  std::vector<T> &sv_e_liste) {
+							  std::vector<std::vector<T>> &sv_e_liste) {
 // Input:
 // features directions  : p3d_liste, m x Vec_Points (vector of n Points)
 // estimated rotation   : sv_r_liste, (m-1) x Mat_33
@@ -314,13 +314,15 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 	centers_determination(sv_r_liste, sv_t_liste, center_liste);
 
 	// Initialize sv_e_liste
-	if (sv_e_liste.size() < (nb_sph - 1)) {
-		for (size_t i { sv_e_liste.size() }; i < (nb_sph - 1); ++i) {
-			sv_e_liste.push_back(0);
+	// creates a null vector of size equal to the number of features
+	std::vector<T> nullvec (nb_pts, 0);
+	if (sv_e_liste.size() < nb_sph) {
+		for (size_t i { sv_e_liste.size() }; i < nb_sph; ++i) {
+			sv_e_liste.push_back(nullvec);
 		}
 	} else {
-		for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
-			sv_e_liste[i] = 0;
+		for (size_t i { 0 }; i < nb_sph; ++i) {
+			sv_e_liste[i] = nullvec;
 		}
 	}
 
@@ -342,7 +344,6 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 		optimal_intersection(center_liste, azim_liste, inter);
 
 		// The new radius of the feature
-
 		for (size_t k{ 0 }; k < nb_sph; ++k) {
 			// Using the optimal intersection (inter), the new radius is computed
 			sv_u_liste[k][j] = azim_liste[k] * (inter - center_liste[k]);
