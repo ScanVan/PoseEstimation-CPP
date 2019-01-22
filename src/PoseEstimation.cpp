@@ -14,7 +14,8 @@
 #include "Estimation.hpp"
 #include <chrono>
 #include "Print_Data.hpp"
-#include "test_prior_model_nuple.hpp"
+//#include "test_prior_model_nuple.hpp"
+#include "test_triplet.hpp"
 
 std::string GetCurrentWorkingDir( void ) {
 // gets the current working directory
@@ -27,10 +28,17 @@ std::string GetCurrentWorkingDir( void ) {
 }
 
 int main() {
+	std::string file_name {GetCurrentWorkingDir() +"/data/triplet_matches"};
+	first_check(file_name, 1e-8);
+
+}
+
+/*
+int main() {
 
 	std::cout << "simulation(42,3,1e-8);" << std::endl;
 	simulation(42,3,1e-8);
-	/*std::cout << "simulation(42,6,1e-8);" << std::endl;
+	std::cout << "simulation(42,6,1e-8);" << std::endl;
 	simulation(42,6,1e-8);
 	std::cout << "simulation(42,9,1e-8);" << std::endl;
 	simulation(42,9,1e-8);
@@ -51,10 +59,11 @@ int main() {
 	simulation(10,9,1e-8);
 
 	std::cout << "end" << std::endl;
-*/
+
 	return 0;
 
 }
+*/
 
 /*
 int main2() {

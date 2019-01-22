@@ -394,7 +394,7 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 
 		for (size_t k{ 0 }; k < nb_sph; ++k) {
 			// the error is computed
-			sv_e_liste[k][j] = (center_liste[k] + sv_u_liste[k][j] * azim_liste[k] - inter).norm();
+			sv_e_liste[k][j] = (center_liste[k] + azim_liste[k] * sv_u_liste[k][j] - inter).norm();
 		}
 
 	}
@@ -469,7 +469,7 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 	std::vector<std::vector<T>> sv_u_liste { };
 	std::vector<Points<T>> sv_t_liste { };
 	std::vector<Mat_33<T>> sv_r_liste { };
-	std::vector<T> sv_e_liste { };
+	std::vector<std::vector<T>> sv_e_liste { };
 
 	// Initialize sv_u_liste
 	std::vector<T> ones(nb_pts, 1);
@@ -511,6 +511,13 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 		T sv_e_cur = iteration_error(sv_e_liste, sv_t_liste);
 
+		std::cout << "Iteration " << std::setfill('0') << std::setw(3) << counter << " : t_norm : ";
+		std::cout << std::scientific << std::setprecision(6) << sv_t_liste[0].norm() << ", " << sv_t_liste[1].norm() << " : with " << nb_pts << " features : ";
+		std::cout << " mean radius : (" << std::accumulate(sv_u_liste[0].begin(), sv_u_liste[0].end(), 0.0)/sv_u_liste[0].size() << " "
+										<< std::accumulate(sv_u_liste[1].begin(), sv_u_liste[1].end(), 0.0)/sv_u_liste[1].size() << " "
+										<< std::accumulate(sv_u_liste[2].begin(), sv_u_liste[2].end(), 0.0)/sv_u_liste[2].size() << ")" << std::endl;
+
+
 		if (std::abs(sv_e_cur - sv_e_old) < error_max) {
 			// stop condition raised, exit while loop
 			loop_flag = false;
@@ -543,8 +550,15 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 	}
 
+	std::cout << sv_r_liste[0] << std::endl;
+	std::cout << sv_r_liste[1] << std::endl;
 
-	// Initialize positions
+	std::cout << sv_t_liste[0] << std::endl;
+	std::cout << sv_t_liste[1] << std::endl;
+
+
+
+	/*// Initialize positions
 	if (positions.size() < nb_sph) {
 		for (size_t i { 0 }; i < nb_sph; ++i) {
 			Points<T> p { };
@@ -553,7 +567,7 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 	}
 
 	pose_scene(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_scene, positions);
-
+*/
 }
 
 #endif /* SRC_ESTIMATION_HPP_ */
