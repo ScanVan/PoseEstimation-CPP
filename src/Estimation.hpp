@@ -293,7 +293,6 @@ inline T iteration_error(const std::vector<std::vector<T>> &sv_e_liste,
 
 	// assuming that sv_liste has the correct size for the number of spheres and number of features
 	size_t nb_sph { sv_e_liste.size() }; // this is m
-	size_t nb_pts { sv_e_liste[0].size() }; // this is n
 
 	std::vector<T> max_radius_per_sphere { };
 	T max_radius_error { };
@@ -490,39 +489,57 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 		sv_t_liste.push_back(p);
 	}
 
-	T sv_e_old { 0 };
-	T sv_e_norm { 1 };
+	T sv_e_old { -1. };
+	//T sv_e_norm { +0. };
 
-	T diff_error { sv_e_norm - sv_e_old };
+	//T diff_error { sv_e_norm - sv_e_old };
 
 	int counter {0};
 
-	while (diff_error > error_max) {
+	// condition to exit the loop
+	bool loop_flag { true };
+
+	while (loop_flag) {
 
 		counter ++;
 
-		sv_e_old = sv_e_norm;
+		//sv_e_old = sv_e_norm;
 
 		estimation_rot_trans(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste);
 
 		estimation_rayons(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_e_liste);
 
-		T sv_t_norm { 0 };
-		for (size_t i { 0 }; i < sv_t_liste.size(); ++i) {
-			sv_t_norm += (sv_t_liste[i].norm());
+		T sv_e_cur = iteration_error(sv_e_liste, sv_t_liste);
+
+		if (std::abs(sv_e_cur - sv_e_old) < error_max) {
+			// stop condition raised, exit while loop
+			loop_flag = false;
+		}
+		else {
+			// push error current value
+			sv_e_old = sv_e_cur;
+
+			// more code here
+
 		}
 
-		T max_num { sv_e_liste[0] };
-		for (size_t i { 1 }; i < sv_e_liste.size(); ++i) {
-			if (sv_e_liste[i] > max_num)
-				max_num = sv_e_liste[i];
-		}
 
-		sv_e_norm = sv_e_liste.size() * max_num / sv_t_norm;
-		T diff_temp { sv_e_norm - sv_e_old };
-		diff_error = diff_temp > 0 ? diff_temp : -diff_temp;
-
-		std::cout << counter << " " << sv_e_norm << std::endl;
+//		T sv_t_norm { 0 };
+//		for (size_t i { 0 }; i < sv_t_liste.size(); ++i) {
+//			sv_t_norm += (sv_t_liste[i].norm());
+//		}
+//
+//		T max_num { sv_e_liste[0] };
+//		for (size_t i { 1 }; i < sv_e_liste.size(); ++i) {
+//			if (sv_e_liste[i] > max_num)
+//				max_num = sv_e_liste[i];
+//		}
+//
+//		sv_e_norm = sv_e_liste.size() * max_num / sv_t_norm;
+//		T diff_temp { sv_e_norm - sv_e_old };
+//		diff_error = diff_temp > 0 ? diff_temp : -diff_temp;
+//
+//		std::cout << counter << " " << sv_e_norm << std::endl;
 
 	}
 
