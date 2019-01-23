@@ -24,6 +24,79 @@
 #include "Mat_33.hpp"
 #include "Vec_Points.hpp"
 #include "Print_Data.hpp"
+#include <cmath>
+
+template <typename T>
+void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
+			     	const std::vector<std::vector<T>> &sv_u_liste,
+					T t_tol,
+					std::vector<Vec_Points<T>> &p3d_liste_new,
+					std::vector<std::vector<T>> &sv_u_liste_new)
+// Inputs:
+// p3d_liste 		: the list of features
+// sv_u_liste		: the list of radius of the features
+// t_tol			: the tolerance
+// Outputs:
+// p3d_liste_new	: the filtered list of features
+// sv_u_liste_new	: the filtered list of radius of the features
+{
+
+	// the number of spheres
+	size_t nb_sph { p3d_liste.size() }; // this is m
+	// the number of features
+	size_t nb_pts { p3d_liste[0].size() }; // this is n
+
+	// the mean values of the radius
+	std::vector<T> t_m { };
+	// calculation of the mean values
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		T m { std::accumulate(sv_u_liste[i].begin(), sv_u_liste[i].end(), 0.0)/sv_u_liste[i].size() };
+		t_m.push_back(m);
+	}
+
+	// the standard deviation of the radius
+	std::vector<T> t_s { };
+	// calculation of the standard deviation
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		T var { 0 };
+		for (const auto & val:sv_u_liste[i]) {
+			var += pow(val - t_m[i], 2);
+		}
+		var /= (sv_u_liste[i].size() - 1);
+		t_s.push_back(sqrt(var));
+	}
+
+	// clears the content by calling the destructors and set the size to 0
+	p3d_liste_new.clear();
+	sv_u_liste_new.clear();
+
+	// initialize the new vectors with empty elements
+	Vec_Points<T> p3d { };
+	std::vector<T> v { };
+	for (size_t i{0}; i < nb_sph; ++i) {
+		p3d_liste_new.push_back(p3d);
+		sv_u_liste_new.push_back(v);
+	}
+
+	for (size_t i { 0 }; i < nb_pts; ++i) {
+
+		bool flag { true };
+		// check conditions for all the spheres
+		for (size_t j {0}; (j < nb_sph) && (flag == true);	++j) {
+			flag = fabs (sv_u_liste[j][i] - t_m[j]) <= t_s[j] * t_tol;
+		}
+
+		// if it passes all the filtering conditions copy the elements to the new vectors
+		if (flag) {
+			for (size_t j {0}; j < nb_sph; ++j) {
+				p3d_liste_new[j].push_back(p3d_liste[j][i]);
+				sv_u_liste_new[j].push_back(sv_u_liste[j][i]);
+			}
+		}
+
+	}
+
+}
 
 template <typename T>
 void optimal_intersection (const std::vector<Points<T>> &t_p, const std::vector<Points<T>> &t_d, Points<T> &t_inter)
