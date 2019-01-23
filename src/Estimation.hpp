@@ -37,8 +37,8 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 // sv_u_liste		: the list of radius of the features
 // t_tol			: the tolerance
 // Outputs:
-// p3d_liste_new	: the filtered list of features
-// sv_u_liste_new	: the filtered list of radius of the features
+// p3d_liste_dest	: the filtered list of features
+// sv_u_liste_dest	: the filtered list of radius of the features
 {
 
 	// the number of spheres
@@ -50,7 +50,7 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 	std::vector<T> t_m { };
 	// calculation of the mean values
 	for (size_t i { 0 }; i < nb_sph; ++i) {
-		T m { std::accumulate(sv_u_liste[i].begin(), sv_u_liste[i].end(), 0.0)/sv_u_liste[i].size() };
+		T m { std::accumulate(sv_u_liste[i].begin(), sv_u_liste[i].end(), 0.0) / sv_u_liste[i].size() };
 		t_m.push_back(m);
 	}
 
@@ -58,26 +58,26 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 	std::vector<T> t_s { };
 	// calculation of the standard deviation
 	for (size_t i { 0 }; i < nb_sph; ++i) {
-		T var { 0 };
-		for (const auto & val:sv_u_liste[i]) {
+		T var { 0.0 };
+		for (const auto & val : sv_u_liste[i]) {
 			var += pow(val - t_m[i], 2);
 		}
 		// check error to avoid division by 0
 		if (sv_u_liste[i].size() <= 1) {
-			throw (std::runtime_error("Size of the vector of radius is less or equal to 1"));
+			throw(std::runtime_error("Size of the vector of radius is less or equal to 1"));
 		}
 		var /= (sv_u_liste[i].size() - 1);
 		t_s.push_back(sqrt(var));
 	}
 
 	// declare new vectors for the computation
-	std::vector<Vec_Points<T>> p3d_liste_new {};
-	std::vector<std::vector<T>> sv_u_liste_new{};
+	std::vector<Vec_Points<T>> p3d_liste_new { };
+	std::vector<std::vector<T>> sv_u_liste_new { };
 
 	// initialize the new vectors with empty elements
 	Vec_Points<T> p3d { };
 	std::vector<T> v { };
-	for (size_t i{0}; i < nb_sph; ++i) {
+	for (size_t i { 0 }; i < nb_sph; ++i) {
 		p3d_liste_new.push_back(p3d);
 		sv_u_liste_new.push_back(v);
 	}
@@ -86,13 +86,13 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 
 		bool flag { true };
 		// check conditions for all the spheres
-		for (size_t j {0}; (j < nb_sph) && (flag == true);	++j) {
-			flag = fabs (sv_u_liste[j][i] - t_m[j]) <= t_s[j] * t_tol;
+		for (size_t j { 0 }; (j < nb_sph) && (flag == true); ++j) {
+			flag = fabs(sv_u_liste[j][i] - t_m[j]) <= t_s[j] * t_tol;
 		}
 
 		// if it passes all the filtering conditions copy the elements to the new vectors
 		if (flag) {
-			for (size_t j {0}; j < nb_sph; ++j) {
+			for (size_t j { 0 }; j < nb_sph; ++j) {
 				p3d_liste_new[j].push_back(p3d_liste[j][i]);
 				sv_u_liste_new[j].push_back(sv_u_liste[j][i]);
 			}
