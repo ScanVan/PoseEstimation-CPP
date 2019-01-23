@@ -63,7 +63,7 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 			var += pow(val - t_m[i], 2);
 		}
 		// check error to avoid division by 0
-		if (sv_u_liste[i].size <= 1) {
+		if (sv_u_liste[i].size() <= 1) {
 			throw (std::runtime_error("Size of the vector of radius is less or equal to 1"));
 		}
 		var /= (sv_u_liste[i].size() - 1);
