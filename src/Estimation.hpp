@@ -511,12 +511,74 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 		T sv_e_cur = iteration_error(sv_e_liste, sv_t_liste);
 
-		std::cout << "Iteration " << std::setfill('0') << std::setw(3) << counter << " : t_norm : ";
-		std::cout << std::scientific << std::setprecision(6) << sv_t_liste[0].norm() << ", " << sv_t_liste[1].norm() << " : with " << nb_pts << " features : ";
-		std::cout << " mean radius : (" << std::accumulate(sv_u_liste[0].begin(), sv_u_liste[0].end(), 0.0)/sv_u_liste[0].size() << " "
-										<< std::accumulate(sv_u_liste[1].begin(), sv_u_liste[1].end(), 0.0)/sv_u_liste[1].size() << " "
-										<< std::accumulate(sv_u_liste[2].begin(), sv_u_liste[2].end(), 0.0)/sv_u_liste[2].size() << ")" << std::endl;
+		if (counter == 1) {
 
+			std::cout << "--- Iteration "<< counter << " ---------------------------------------------------------------" << std::endl;
+
+			std::cout << sv_r_liste[0] << std::endl;
+			std::cout << sv_r_liste[1] << std::endl;
+
+			std::cout << sv_t_liste[0] << std::endl;
+			std::cout << sv_t_liste[1] << std::endl;
+
+			std::cout << sv_u_liste[0][0] << " " << sv_u_liste[0][1] << " " << sv_u_liste[0][2] << std::endl;
+			std::cout << sv_u_liste[1][0] << " " << sv_u_liste[1][1] << " " << sv_u_liste[1][2] << std::endl;
+			std::cout << sv_u_liste[2][0] << " " << sv_u_liste[2][1] << " " << sv_u_liste[2][2] << std::endl << std::endl;
+
+			std::cout << sv_e_liste[0][0] << " " << sv_e_liste[0][1] << " " << sv_e_liste[0][2] << std::endl;
+			std::cout << sv_e_liste[1][0] << " " << sv_e_liste[1][1] << " " << sv_e_liste[1][2] << std::endl;
+			std::cout << sv_e_liste[2][0] << " " << sv_e_liste[2][1] << " " << sv_e_liste[2][2] << std::endl << std::endl;
+
+		}
+
+		if (counter == 10) {
+
+			std::cout << "--- Iteration "<< counter << " ---------------------------------------------------------------" << std::endl;
+
+			std::cout << sv_r_liste[0] << std::endl;
+			std::cout << sv_r_liste[1] << std::endl;
+
+			std::cout << sv_t_liste[0] << std::endl;
+			std::cout << sv_t_liste[1] << std::endl;
+
+			std::cout << sv_u_liste[0][0] << " " << sv_u_liste[0][1] << " " << sv_u_liste[0][2] << std::endl;
+			std::cout << sv_u_liste[1][0] << " " << sv_u_liste[1][1] << " " << sv_u_liste[1][2] << std::endl;
+			std::cout << sv_u_liste[2][0] << " " << sv_u_liste[2][1] << " " << sv_u_liste[2][2] << std::endl << std::endl;
+
+			std::cout << sv_e_liste[0][0] << " " << sv_e_liste[0][1] << " " << sv_e_liste[0][2] << std::endl;
+			std::cout << sv_e_liste[1][0] << " " << sv_e_liste[1][1] << " " << sv_e_liste[1][2] << std::endl;
+			std::cout << sv_e_liste[2][0] << " " << sv_e_liste[2][1] << " " << sv_e_liste[2][2] << std::endl << std::endl;
+
+		}
+
+		if (counter == 50) {
+
+			std::cout << "--- Iteration " << counter << " ---------------------------------------------------------------" << std::endl;
+
+			std::cout << sv_r_liste[0] << std::endl;
+			std::cout << sv_r_liste[1] << std::endl;
+
+			std::cout << sv_t_liste[0] << std::endl;
+			std::cout << sv_t_liste[1] << std::endl;
+
+			std::cout << sv_u_liste[0][0] << " " << sv_u_liste[0][1] << " " << sv_u_liste[0][2] << std::endl;
+			std::cout << sv_u_liste[1][0] << " " << sv_u_liste[1][1] << " " << sv_u_liste[1][2] << std::endl;
+			std::cout << sv_u_liste[2][0] << " " << sv_u_liste[2][1] << " " << sv_u_liste[2][2] << std::endl << std::endl;
+
+			std::cout << sv_e_liste[0][0] << " " << sv_e_liste[0][1] << " " << sv_e_liste[0][2] << std::endl;
+			std::cout << sv_e_liste[1][0] << " " << sv_e_liste[1][1] << " " << sv_e_liste[1][2] << std::endl;
+			std::cout << sv_e_liste[2][0] << " " << sv_e_liste[2][1] << " " << sv_e_liste[2][2] << std::endl << std::endl;
+
+		}
+
+
+
+
+//		std::cout << "Iteration " << std::setfill('0') << std::setw(3) << counter << " : t_norm : ";
+//		std::cout << std::scientific << std::setprecision(6) << sv_t_liste[0].norm() << ", " << sv_t_liste[1].norm() << " : with " << nb_pts << " features : ";
+//		std::cout << " mean radius : (" << std::accumulate(sv_u_liste[0].begin(), sv_u_liste[0].end(), 0.0)/sv_u_liste[0].size() << " "
+//										<< std::accumulate(sv_u_liste[1].begin(), sv_u_liste[1].end(), 0.0)/sv_u_liste[1].size() << " "
+//										<< std::accumulate(sv_u_liste[2].begin(), sv_u_liste[2].end(), 0.0)/sv_u_liste[2].size() << ")" << std::endl;
 
 		if (std::abs(sv_e_cur - sv_e_old) < error_max) {
 			// stop condition raised, exit while loop
@@ -550,11 +612,11 @@ void pose_estimation (const std::vector<Vec_Points<T>> &p3d_liste, const T error
 
 	}
 
-	std::cout << sv_r_liste[0] << std::endl;
-	std::cout << sv_r_liste[1] << std::endl;
-
-	std::cout << sv_t_liste[0] << std::endl;
-	std::cout << sv_t_liste[1] << std::endl;
+//	std::cout << sv_r_liste[0] << std::endl;
+//	std::cout << sv_r_liste[1] << std::endl;
+//
+//	std::cout << sv_t_liste[0] << std::endl;
+//	std::cout << sv_t_liste[1] << std::endl;
 
 
 
