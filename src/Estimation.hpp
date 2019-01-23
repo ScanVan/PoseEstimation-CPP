@@ -30,8 +30,8 @@ template <typename T>
 void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 			     	const std::vector<std::vector<T>> &sv_u_liste,
 					T t_tol,
-					std::vector<Vec_Points<T>> &p3d_liste_new,
-					std::vector<std::vector<T>> &sv_u_liste_new)
+					std::vector<Vec_Points<T>> &p3d_liste_dest,
+					std::vector<std::vector<T>> &sv_u_liste_dest)
 // Inputs:
 // p3d_liste 		: the list of features
 // sv_u_liste		: the list of radius of the features
@@ -70,9 +70,9 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 		t_s.push_back(sqrt(var));
 	}
 
-	// clears the content by calling the destructors and set the size to 0
-	p3d_liste_new.clear();
-	sv_u_liste_new.clear();
+	// declare new vectors for the computation
+	std::vector<Vec_Points<T>> p3d_liste_new {};
+	std::vector<std::vector<T>> sv_u_liste_new{};
 
 	// initialize the new vectors with empty elements
 	Vec_Points<T> p3d { };
@@ -97,9 +97,11 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 				sv_u_liste_new[j].push_back(sv_u_liste[j][i]);
 			}
 		}
-
 	}
 
+	// copy the results to destination
+	p3d_liste_dest = p3d_liste_new;
+	sv_u_liste_dest = sv_u_liste_new;
 }
 
 template <typename T>

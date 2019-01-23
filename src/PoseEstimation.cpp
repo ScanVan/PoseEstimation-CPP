@@ -59,9 +59,8 @@ int main() {
 	std::vector<Vec_Points<double>> p3d_liste_new {};
 	std::vector<std::vector<double>> sv_u_liste_new {};
 
-	ntuple_filter (p3d_liste, sv_u_liste, 1.0, p3d_liste_new, sv_u_liste_new);
 
-
+	// print previous vectors
 	std::cout << p3d_liste[0] << std::endl;
 	std::cout << p3d_liste[1] << std::endl;
 
@@ -69,11 +68,15 @@ int main() {
 	std::cout << std::endl;
 
 
-	std::cout << p3d_liste_new[0] << std::endl;
-	std::cout << p3d_liste_new[1] << std::endl;
+	ntuple_filter (p3d_liste, sv_u_liste, 1.0, p3d_liste, sv_u_liste);
 
-	for_each(sv_u_liste_new.begin(), sv_u_liste_new.end(), print1<double>);
+	// print filtered vectors
+	std::cout << p3d_liste[0] << std::endl;
+	std::cout << p3d_liste[1] << std::endl;
+
+	for_each(sv_u_liste.begin(), sv_u_liste.end(), print1<double>);
 	std::cout << std::endl;
+
 
 }
 
