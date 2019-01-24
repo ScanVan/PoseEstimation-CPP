@@ -28,54 +28,54 @@ std::string GetCurrentWorkingDir( void ) {
 }
 
 int main() {
-	//std::string file_name {GetCurrentWorkingDir() +"/data/triplet_matches"};
-	//first_check(file_name, 1e-8);
+	std::string file_name {GetCurrentWorkingDir() +"/data/triplet_matches"};
+	first_check(file_name, 1e-8);
 
-	Points<double> p1_1 {1,1,0};
-	Points<double> p1_2 {1,2,0};
-	Points<double> p1_3 {1,3,0};
-
-	Points<double> p2_1 {2,1,0};
-	Points<double> p2_2 {2,2,0};
-	Points<double> p2_3 {2,3,0};
-
-	Vec_Points<double> p3d_1 {};
-	p3d_1.push_back(p1_1);
-	p3d_1.push_back(p1_2);
-	p3d_1.push_back(p1_3);
-
-	Vec_Points<double> p3d_2 {};
-	p3d_2.push_back(p2_1);
-	p3d_2.push_back(p2_2);
-	p3d_2.push_back(p2_3);
-
-	std::vector<Vec_Points<double>> p3d_liste {p3d_1, p3d_2};
-
-	std::vector<double> v1 {1,10,1};
-	std::vector<double> v2 {1,1,1};
-
-	std::vector<std::vector<double>> sv_u_liste {v1, v2};
-
-	std::vector<Vec_Points<double>> p3d_liste_new {};
-	std::vector<std::vector<double>> sv_u_liste_new {};
-
-
-	// print previous vectors
-	std::cout << p3d_liste[0] << std::endl;
-	std::cout << p3d_liste[1] << std::endl;
-
-	for_each(sv_u_liste.begin(), sv_u_liste.end(), print1<double>);
-	std::cout << std::endl;
-
-
-	ntuple_filter (p3d_liste, sv_u_liste, 1.0, p3d_liste, sv_u_liste);
-
-	// print filtered vectors
-	std::cout << p3d_liste[0] << std::endl;
-	std::cout << p3d_liste[1] << std::endl;
-
-	for_each(sv_u_liste.begin(), sv_u_liste.end(), print1<double>);
-	std::cout << std::endl;
+//	Points<double> p1_1 {1,1,0};
+//	Points<double> p1_2 {1,2,0};
+//	Points<double> p1_3 {1,3,0};
+//
+//	Points<double> p2_1 {2,1,0};
+//	Points<double> p2_2 {2,2,0};
+//	Points<double> p2_3 {2,3,0};
+//
+//	Vec_Points<double> p3d_1 {};
+//	p3d_1.push_back(p1_1);
+//	p3d_1.push_back(p1_2);
+//	p3d_1.push_back(p1_3);
+//
+//	Vec_Points<double> p3d_2 {};
+//	p3d_2.push_back(p2_1);
+//	p3d_2.push_back(p2_2);
+//	p3d_2.push_back(p2_3);
+//
+//	std::vector<Vec_Points<double>> p3d_liste {p3d_1, p3d_2};
+//
+//	std::vector<double> v1 {1,10,1};
+//	std::vector<double> v2 {1,1,1};
+//
+//	std::vector<std::vector<double>> sv_u_liste {v1, v2};
+//
+//	std::vector<Vec_Points<double>> p3d_liste_new {};
+//	std::vector<std::vector<double>> sv_u_liste_new {};
+//
+//
+//	// print previous vectors
+//	std::cout << p3d_liste[0] << std::endl;
+//	std::cout << p3d_liste[1] << std::endl;
+//
+//	for_each(sv_u_liste.begin(), sv_u_liste.end(), print1<double>);
+//	std::cout << std::endl;
+//
+//
+//	ntuple_filter (p3d_liste, sv_u_liste, 1.0, p3d_liste, sv_u_liste);
+//
+//	// print filtered vectors
+//	std::cout << p3d_liste[0] << std::endl;
+//	std::cout << p3d_liste[1] << std::endl;
+//
+//	for_each(sv_u_liste.begin(), sv_u_liste.end(), print1<double>);
+//	std::cout << std::endl;
 
 
 }
