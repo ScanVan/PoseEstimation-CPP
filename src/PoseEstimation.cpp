@@ -28,7 +28,7 @@ std::string GetCurrentWorkingDir( void ) {
 }
 
 int main() {
-	std::string file_name {GetCurrentWorkingDir() +"/data/triplet_matches"};
+	std::string file_name {GetCurrentWorkingDir()};
 	first_check(file_name, 1e-8);
 
 //	Points<double> p1_1 {1,1,0};

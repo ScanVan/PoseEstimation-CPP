@@ -740,6 +740,9 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 			// push error current value
 			sv_e_old = sv_e_cur;
 
+			// check error consistency
+			ntuple_consistency (p3d_liste, sv_u_liste, 5.0, sv_e_liste, p3d_liste, sv_u_liste);
+
 			// filter out non convergent radius
 			ntuple_filter (p3d_liste, sv_u_liste, 5.0, p3d_liste, sv_u_liste);
 
@@ -790,7 +793,7 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 	}
 
 	pose_scene(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_scene, positions);
-*/
+
 }
 
 #endif /* SRC_ESTIMATION_HPP_ */

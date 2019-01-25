@@ -45,7 +45,9 @@ void triplet_cartesian (const std::vector<std::vector<double>> &t_match,
 }
 
 
-void first_check(std::string file_name, double err_tol) {
+void first_check(std::string directory_name, double err_tol) {
+
+	std::string file_name = directory_name + "/data/triplet_matches";
 
 	std::ifstream file(file_name);
 
@@ -96,6 +98,14 @@ void first_check(std::string file_name, double err_tol) {
 	std::vector<Points<double>> positions { };
 
 	pose_estimation (spheres, err_tol, sv_scene, positions);
+
+	// setup path to save the output result
+	std::string output_file = directory_name +  "/data/sv_scene.m";
+
+	if (sv_scene.save_vecpoints(output_file)) {
+		// Error opening the file
+		throw std::runtime_error("Error writing the point cloud.");
+	}
 
 }
 
