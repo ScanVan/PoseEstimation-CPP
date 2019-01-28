@@ -543,7 +543,7 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 		// Calculates the optimal intersection point inter passing the current feature centers and directions
 		optimal_intersection(center_liste, azim_liste, inter);
 
-		// The new radius of the featureHow do you get the point cloud?
+		// The new radius of the feature
 		for (size_t k{ 0 }; k < nb_sph; ++k) {
 			// Using the optimal intersection (inter), the new radius is computed
 			sv_u_liste[k][j] = azim_liste[k] * (inter - center_liste[k]);
@@ -556,6 +556,7 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 		}
 
 	}
+
 }
 
 template <typename T>
@@ -648,9 +649,6 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 	}
 
 	T sv_e_old { -1. };
-	//T sv_e_norm { +0. };
-
-	//T diff_error { sv_e_norm - sv_e_old };
 
 	int counter {0};
 
@@ -661,76 +659,11 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 
 		counter ++;
 
-		//sv_e_old = sv_e_norm;
-
 		estimation_rot_trans(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste);
 
 		estimation_rayons(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_e_liste);
 
 		T sv_e_cur = iteration_error(sv_e_liste, sv_t_liste);
-
-//		if (counter == 1) {
-//
-//			std::cout << "--- Iteration "<< counter << " ---------------------------------------------------------------" << std::endl;
-//
-//			std::cout << sv_r_liste[0] << std::endl;
-//			std::cout << sv_r_liste[1] << std::endl;
-//
-//			std::cout << sv_t_liste[0] << std::endl;
-//			std::cout << sv_t_liste[1] << std::endl;
-//
-//			std::cout << sv_u_liste[0][0] << " " << sv_u_liste[0][1] << " " << sv_u_liste[0][2] << std::endl;
-//			std::cout << sv_u_liste[1][0] << " " << sv_u_liste[1][1] << " " << sv_u_liste[1][2] << std::endl;
-//			std::cout << sv_u_liste[2][0] << " " << sv_u_liste[2][1] << " " << sv_u_liste[2][2] << std::endl << std::endl;
-//
-//			std::cout << sv_e_liste[0][0] << " " << sv_e_liste[0][1] << " " << sv_e_liste[0][2] << std::endl;
-//			std::cout << sv_e_liste[1][0] << " " << sv_e_liste[1][1] << " " << sv_e_liste[1][2] << std::endl;
-//			std::cout << sv_e_liste[2][0] << " " << sv_e_liste[2][1] << " " << sv_e_liste[2][2] << std::endl << std::endl;
-//
-//		}
-//
-//		if (counter == 10) {
-//
-//			std::cout << "--- Iteration "<< counter << " ---------------------------------------------------------------" << std::endl;
-//
-//			std::cout << sv_r_liste[0] << std::endl;
-//			std::cout << sv_r_liste[1] << std::endl;
-//
-//			std::cout << sv_t_liste[0] << std::endl;
-//			std::cout << sv_t_liste[1] << std::endl;
-//
-//			std::cout << sv_u_liste[0][0] << " " << sv_u_liste[0][1] << " " << sv_u_liste[0][2] << std::endl;
-//			std::cout << sv_u_liste[1][0] << " " << sv_u_liste[1][1] << " " << sv_u_liste[1][2] << std::endl;
-//			std::cout << sv_u_liste[2][0] << " " << sv_u_liste[2][1] << " " << sv_u_liste[2][2] << std::endl << std::endl;
-//
-//			std::cout << sv_e_liste[0][0] << " " << sv_e_liste[0][1] << " " << sv_e_liste[0][2] << std::endl;
-//			std::cout << sv_e_liste[1][0] << " " << sv_e_liste[1][1] << " " << sv_e_liste[1][2] << std::endl;
-//			std::cout << sv_e_liste[2][0] << " " << sv_e_liste[2][1] << " " << sv_e_liste[2][2] << std::endl << std::endl;
-//
-//		}
-//
-//		if (counter == 50) {
-//
-//			std::cout << "--- Iteration " << counter << " ---------------------------------------------------------------" << std::endl;
-//
-//			std::cout << sv_r_liste[0] << std::endl;
-//			std::cout << sv_r_liste[1] << std::endl;
-//
-//			std::cout << sv_t_liste[0] << std::endl;
-//			std::cout << sv_t_liste[1] << std::endl;
-//
-//			std::cout << sv_u_liste[0][0] << " " << sv_u_liste[0][1] << " " << sv_u_liste[0][2] << std::endl;
-//			std::cout << sv_u_liste[1][0] << " " << sv_u_liste[1][1] << " " << sv_u_liste[1][2] << std::endl;
-//			std::cout << sv_u_liste[2][0] << " " << sv_u_liste[2][1] << " " << sv_u_liste[2][2] << std::endl << std::endl;
-//
-//			std::cout << sv_e_liste[0][0] << " " << sv_e_liste[0][1] << " " << sv_e_liste[0][2] << std::endl;
-//			std::cout << sv_e_liste[1][0] << " " << sv_e_liste[1][1] << " " << sv_e_liste[1][2] << std::endl;
-//			std::cout << sv_e_liste[2][0] << " " << sv_e_liste[2][1] << " " << sv_e_liste[2][2] << std::endl << std::endl;
-//
-//		}
-
-
-
 
 		if (std::abs(sv_e_cur - sv_e_old) < error_max) {
 			// stop condition raised, exit while loop
@@ -755,25 +688,6 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 				<< std::accumulate(sv_u_liste[1].begin(), sv_u_liste[1].end(), 0.0) / sv_u_liste[1].size() << " "
 				<< std::accumulate(sv_u_liste[2].begin(), sv_u_liste[2].end(), 0.0) / sv_u_liste[2].size() << ")" << std::endl;
 
-
-
-//		T sv_t_norm { 0 };
-//		for (size_t i { 0 }; i < sv_t_liste.size(); ++i) {
-//			sv_t_norm += (sv_t_liste[i].norm());
-//		}
-//
-//		T max_num { sv_e_liste[0] };
-//		for (size_t i { 1 }; i < sv_e_liste.size(); ++i) {
-//			if (sv_e_liste[i] > max_num)
-//				max_num = sv_e_liste[i];
-//		}
-//
-//		sv_e_norm = sv_e_liste.size() * max_num / sv_t_norm;
-//		T diff_temp { sv_e_norm - sv_e_old };
-//		diff_error = diff_temp > 0 ? diff_temp : -diff_temp;
-//
-//		std::cout << counter << " " << sv_e_norm << std::endl;
-
 	}
 
 	std::cout << sv_r_liste[0] << std::endl;
@@ -781,8 +695,6 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 
 	std::cout << sv_t_liste[0] << std::endl;
 	std::cout << sv_t_liste[1] << std::endl;
-
-
 
 	// Initialize positions
 	if (positions.size() < nb_sph) {

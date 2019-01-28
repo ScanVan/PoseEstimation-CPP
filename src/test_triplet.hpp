@@ -70,7 +70,7 @@ void first_check(std::string directory_name, double err_tol) {
 	// read from file the cartesian coordinates
 	while (file.good()) {
 		double x1 { }, y1 { }, x2 { }, y2 { }, x3 { }, y3 { };
-		file >> std::setprecision(15) >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+		file >> std::scientific >> std::setprecision(15) >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
 		if (file.good()) {
 			std::vector<double> p1 { x1, y1 };
 			cart1.push_back(p1);
