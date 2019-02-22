@@ -3,5 +3,6 @@
 core
 models*
 prior_generated_test_models
+/data/
 
 

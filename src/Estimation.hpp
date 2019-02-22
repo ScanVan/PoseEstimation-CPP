@@ -332,12 +332,11 @@ inline void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, con
 {
 	size_t nb_sph { sv_r_liste.size() + 1 };
 
-	// if center_liste is empty
-	if (center_liste.size() < nb_sph) {
-		Points<T> zp { };
-		for (size_t i { center_liste.size() }; i < nb_sph; ++i) {
-			center_liste.push_back(zp);
-		}
+	// Resets center_liste
+	center_liste.clear();
+	Points<T> zp { };
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		center_liste.push_back(zp);
 	}
 
 	for (size_t i { 0 }; i < nb_sph; ++i) {
@@ -352,7 +351,7 @@ inline void centers_determination (const std::vector<Mat_33<T>> &sv_r_liste, con
 }
 
 template<typename T>
-inline std::vector<Points<T>> azim_determination(std::vector<Points<T>> &azim_liste,
+inline void azim_determination(std::vector<Points<T>> &azim_liste,
 		        								  const std::vector<Mat_33<T>> &sv_r_liste,
 				        						  const std::vector<Points<T>> &sv_t_liste) {
 
@@ -363,8 +362,6 @@ inline std::vector<Points<T>> azim_determination(std::vector<Points<T>> &azim_li
 			azim_liste[i] = sv_r_liste[k].transpose() * azim_liste[i];
 		}
 	}
-
-	return azim_liste;
 
 }
 
@@ -502,8 +499,8 @@ inline void estimation_rayons(const std::vector<Vec_Points<T>> &p3d_liste,
 	std::vector<Points<T>> center_liste { };
 
 	// Initialize center_liste
+	Points<T> p {};
 	if (center_liste.size() < nb_sph) {
-		Points<T> p {};
 		for (size_t i{ center_liste.size() }; i < nb_sph; ++i ) {
 			center_liste.push_back(p);
 		}
@@ -572,62 +569,52 @@ void pose_scene (const std::vector<Vec_Points<T>> &p3d_liste,
 
 	centers_determination(sv_r_liste, sv_t_liste, center_liste);
 
-	// If sv_scene empty, fill with zeros
-	if (sv_scene.size() < nb_pts) {
-		for (size_t i{0}; i < nb_pts; ++i) {
-			sv_scene.push_back(0, 0, 0);
-		}
+	// reset sv_scene
+	sv_scene.clear(); // removes all elements and set the size to 0
+	for (size_t i { 0 }; i < nb_pts; ++i) {
+		sv_scene.push_back(0, 0, 0);
 	}
 
 	for (size_t j { 0 }; j < nb_pts; ++j) {
+
 		std::vector<Points<T>> azim_liste { };
 		for (size_t i { 0 }; i < nb_sph; ++i) {
 			azim_liste.push_back(p3d_liste[i][j]);
 		}
-		azim_liste = azim_determination(azim_liste, sv_r_liste, sv_t_liste);
-		std::vector<T> rayons { };
-		try {
-			rayons = intersection_bis(center_liste, azim_liste);
-		} catch (...) {
-			for (size_t k { 0 }; k < nb_sph; ++k) {
-				rayons[k] = sv_u_liste[k][j];
-			}
-		}
-		std::vector<Points<T>> inter_liste { };
-
-		// Initialize inter_liste
-		if (inter_liste.size() < nb_sph) {
-			for (size_t i { inter_liste.size() }; i < nb_sph; ++i) {
-				Points<T> p { };
-				inter_liste.push_back(p);
-			}
-		}
-
-		for (size_t i { 0 }; i < nb_sph; ++i) {
-			inter_liste[i] = center_liste[i] + azim_liste[i] * rayons[i];
-		}
+		azim_determination(azim_liste, sv_r_liste, sv_t_liste);
 
 		Points<T> inter { };
-		for (size_t i {0}; i < inter_liste.size(); ++i) {
-			inter = inter + inter_liste[i];
-		}
-		sv_scene[j] = inter / inter_liste.size();
+
+		// Calculates the optimal intersection point inter passing the current feature centers and directions
+		optimal_intersection(center_liste, azim_liste, inter);
+
+		sv_scene[j] = inter;
 
 	}
 }
 
 
 template <typename T>
-void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
+int pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 					  Vec_Points<T> &sv_scene,
-					  std::vector<Points<T>> &positions) {
+					  std::vector<Points<T>> &positions,
+					  std::vector<Mat_33<T>> &sv_r_liste,
+					  std::vector<Points<T>> &sv_t_liste) {
+//Input:
+// p3d_liste:	initial spherical coordinates of the features
+// error_max: 	the error tolerance
+//Output:
+// Function return the number of iterations
+// p3d_liste: 	filtered spherical coordinates of the features
+// sv_scene:	point cloud of the reconstructed scene
+// positions:	positions of the sphere
+// sv_r_liste:  rotations matrices
+// sv_t_liste:	translation vectors
 
 	size_t nb_sph = p3d_liste.size();
 	size_t nb_pts = p3d_liste[0].size();
 
 	std::vector<std::vector<T>> sv_u_liste { };
-	std::vector<Points<T>> sv_t_liste { };
-	std::vector<Mat_33<T>> sv_r_liste { };
 	std::vector<std::vector<T>> sv_e_liste { };
 
 	// Initialize sv_u_liste
@@ -637,12 +624,14 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 	}
 
 	// Initialize sv_r_liste
+	sv_r_liste.clear(); // removes all elements and reset size to 0
 	for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
 		Mat_33<T> m { };
 		sv_r_liste.push_back(m);
 	}
 
 	// Initialize sv_t_liste;
+	sv_t_liste.clear(); // removes all elements and reset size to 0
 	for (size_t i { 0 }; i < (nb_sph - 1); ++i) {
 		Points<T> p { };
 		sv_t_liste.push_back(p);
@@ -674,10 +663,25 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 			sv_e_old = sv_e_cur;
 
 			// check error consistency
+			//ntuple_consistency (p3d_liste, sv_u_liste, 5.0, sv_e_liste, p3d_liste, sv_u_liste);
 			ntuple_consistency (p3d_liste, sv_u_liste, 5.0, sv_e_liste, p3d_liste, sv_u_liste);
 
 			// filter out non convergent radius
+			//ntuple_filter (p3d_liste, sv_u_liste, 5.0, p3d_liste, sv_u_liste);
 			ntuple_filter (p3d_liste, sv_u_liste, 5.0, p3d_liste, sv_u_liste);
+
+			// compute triplet characteristic scale
+			T t_norm {};
+			for (const auto &v_t: sv_t_liste) {
+				t_norm = t_norm + v_t.norm();
+			}
+
+			// normalization of radius
+			for (auto &v_u: sv_u_liste) {
+				for (auto & u: v_u) {
+					u /= t_norm;
+				}
+			}
 
 		}
 
@@ -697,15 +701,76 @@ void pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 	std::cout << sv_t_liste[1] << std::endl;
 
 	// Initialize positions
-	if (positions.size() < nb_sph) {
-		for (size_t i { 0 }; i < nb_sph; ++i) {
-			Points<T> p { };
-			positions.push_back(p);
-		}
+	positions.clear(); // removes all the elemnts and set the size to 0
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		Points<T> p { };
+		positions.push_back(p);
 	}
+
 
 	pose_scene(p3d_liste, sv_u_liste, sv_r_liste, sv_t_liste, sv_scene, positions);
 
+	return counter; // returns the number of iterations
 }
+
+template <typename T>
+void filter_keypoints (std::vector<Vec_Points<T>> &p3d_liste,
+					  Vec_Points<T> &sv_scene,
+					  std::vector<Points<T>> &positions,
+					  std::vector<Vec_Points<T>> &p3d_liste_dest) {
+
+	// the number of spheres
+	size_t nb_sph { p3d_liste.size() }; // this is m
+
+
+	// declare new vectors for the computation
+	std::vector<Vec_Points<T>> p3d_liste_new { };
+
+	// initialize the new vectors with empty elements
+	Vec_Points<T> p3d { };
+	std::vector<T> v { };
+	for (size_t i { 0 }; i < nb_sph; ++i) {
+		p3d_liste_new.push_back(p3d);
+	}
+
+	// the position of the center of the triplets
+	cv::Matx13f modelCenter(0, 0, 0);
+
+	// calculates the mean position of the triplets
+	for (size_t i { 0 }; i < positions.size(); ++i) {
+		Points<double> f = positions[i];
+		modelCenter = modelCenter + cv::Matx13f(f[0], f[1], f[2]);
+	}
+	modelCenter = 1.0 / positions.size() * modelCenter;
+
+	// calculates the average distance of the reconstructed points with respect to the center of the triplets
+	double averageDistance = 0;
+	for (size_t i { 0 }; i < sv_scene.size(); ++i) {
+		Points<double> f = sv_scene[i];
+		averageDistance += cv::norm(modelCenter - cv::Matx13f(f[0], f[1], f[2]));
+	}
+	averageDistance /= sv_scene.size();
+
+
+	for (size_t i { 0 }; i < sv_scene.size(); ++i) {
+
+		Points<double> f = sv_scene[i];
+		//if (cv::norm(cv::Matx13f(f[0], f[1], f[2]) - modelCenter) > 1.2*averageDistance)
+		if (cv::norm(cv::Matx13f(f[0], f[1], f[2]) - modelCenter) > 1.2*averageDistance)
+			continue;
+
+		for (size_t j { 0 }; j < nb_sph; ++j) {
+			p3d_liste_new[j].push_back(p3d_liste[j][i]);
+
+		}
+	}
+
+	// copy the results to destination
+	p3d_liste_dest = p3d_liste_new;
+
+}
+
+
+
 
 #endif /* SRC_ESTIMATION_HPP_ */

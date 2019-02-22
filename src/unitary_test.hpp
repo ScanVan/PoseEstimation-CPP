@@ -1,5 +1,5 @@
-#ifndef SRC_TEST_TRIPLET_HPP_
-#define SRC_TEST_TRIPLET_HPP_
+#ifndef SRC_UNITARY_TEST_HPP_
+#define SRC_UNITARY_TEST_HPP_
 
 #include <fstream>
 #include <iostream>
@@ -13,14 +13,8 @@
 #include <opencv4/opencv2/imgcodecs.hpp>
 #include <opencv4/opencv2/opencv.hpp>
 #include <math.h>
-
-template <typename T>
-void print1(const std::vector<T> &v) {
-	for (auto const &x: v ) {
-		std::cout << std::setprecision(15) <<  x << " ";
-	}
-	std::cout << std::endl;
-}
+#include "Cartesian2Spherical.hpp"
+#include "Estimation.hpp"
 
 void triplet_cartesian (const std::vector<std::vector<double>> &t_match,
 						const double &t_width,
@@ -29,25 +23,15 @@ void triplet_cartesian (const std::vector<std::vector<double>> &t_match,
 
 
 	for (auto &x:t_match) {
-		// coordinate re-normalization
-		double tm1 = (x[0] / t_width) * 2 * M_PI;
-		double tm2 = (0.5 - (x[1] / t_height)) * M_PI;
-
-		// coordinate conversion
-		double p1 { cos (tm2) * cos (tm1) };
-		double p2 { cos (tm2) * sin (tm1) };
-		double p3 { sin(tm2) };
-
-		Points<double> p {p1, p2, p3};
+		Points<double> p = convertCartesian2Spherical (x[0], x[1], t_width, t_height);
 		sph.push_back(p);
 	}
 
 }
 
+void unitary_check(std::string directory_name, double err_tol) {
 
-void first_check(std::string directory_name, double err_tol) {
-
-	std::string file_name = directory_name + "/data/triplet_matches";
+	std::string file_name = directory_name + "/data/20181218-160912-843294_20181218-160924-593294_20181218-160929-593290";
 
 	std::ifstream file(file_name);
 
@@ -85,9 +69,9 @@ void first_check(std::string directory_name, double err_tol) {
 	double height = 3008;
 
 	// convert to unitary sphere coordinates
-	triplet_cartesian (cart1, width, height, sph1);
-	triplet_cartesian (cart2, width, height, sph2);
-	triplet_cartesian (cart3, width, height, sph3);
+	triplet_cartesian(cart1, width, height, sph1);
+	triplet_cartesian(cart2, width, height, sph2);
+	triplet_cartesian(cart3, width, height, sph3);
 
 	// construct the vector of sphere coordinates
 	spheres.push_back(sph1);
@@ -97,10 +81,13 @@ void first_check(std::string directory_name, double err_tol) {
 	Vec_Points<double> sv_scene { };
 	std::vector<Points<double>> positions { };
 
-	pose_estimation (spheres, err_tol, sv_scene, positions);
+	std::vector<Mat_33<double>> sv_r_liste {};
+	std::vector<Points<double>> sv_t_liste {};
+
+	pose_estimation(spheres, err_tol, sv_scene, positions, sv_r_liste, sv_t_liste);
 
 	// setup path to save the output result
-	std::string output_file = directory_name +  "/data/sv_scene.m";
+	std::string output_file = directory_name + "/data/sv_scene.m";
 
 	if (sv_scene.save_vecpoints(output_file)) {
 		// Error opening the file
@@ -109,6 +96,4 @@ void first_check(std::string directory_name, double err_tol) {
 
 }
 
-
-
-#endif /* SRC_TEST_TRIPLET_HPP_ */
+#endif /* SRC_UNITARY_TEST_HPP_ */
