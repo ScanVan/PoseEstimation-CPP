@@ -4,5 +4,5 @@ core
 models*
 prior_generated_test_models
 /data/
-
+/data/sv_scene.m
 
