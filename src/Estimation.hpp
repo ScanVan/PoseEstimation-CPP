@@ -25,6 +25,7 @@
 #include "Vec_Points.hpp"
 #include "Print_Data.hpp"
 #include <cmath>
+#include <numeric>
 
 template <typename T>
 void ntuple_consistency (const std::vector<Vec_Points<T>> &p3d_liste,
@@ -170,7 +171,7 @@ void ntuple_filter (const std::vector<Vec_Points<T>> &p3d_liste,
 		}
 
 		// if it passes all the filtering conditions copy the elements to the new vectors
-		if (flag) {
+		if (flag && (sv_u_liste[0][i] > 0)) {
 			for (size_t j { 0 }; j < nb_sph; ++j) {
 				p3d_liste_new[j].push_back(p3d_liste[j][i]);
 				sv_u_liste_new[j].push_back(sv_u_liste[j][i]);
@@ -685,20 +686,20 @@ int pose_estimation (std::vector<Vec_Points<T>> &p3d_liste, const T error_max,
 
 		}
 
-		std::cout << "Iteration " << std::setfill('0') << std::setw(3) << counter << " : t_norm : ";
-		std::cout << std::fixed << std::setprecision(6) << sv_t_liste[0].norm() << ", " << sv_t_liste[1].norm() << " : with " << p3d_liste[0].size()
-				<< " features : ";
-		std::cout << " mean radius : (" << std::accumulate(sv_u_liste[0].begin(), sv_u_liste[0].end(), 0.0) / sv_u_liste[0].size() << " "
-				<< std::accumulate(sv_u_liste[1].begin(), sv_u_liste[1].end(), 0.0) / sv_u_liste[1].size() << " "
-				<< std::accumulate(sv_u_liste[2].begin(), sv_u_liste[2].end(), 0.0) / sv_u_liste[2].size() << ")" << std::endl;
+//		std::cout << "Iteration " << std::setfill('0') << std::setw(3) << counter << " : t_norm : ";
+//		std::cout << std::fixed << std::setprecision(6) << sv_t_liste[0].norm() << ", " << sv_t_liste[1].norm() << " : with " << p3d_liste[0].size()
+//				<< " features : ";
+//		std::cout << " mean radius : (" << std::accumulate(sv_u_liste[0].begin(), sv_u_liste[0].end(), 0.0) / sv_u_liste[0].size() << " "
+//				<< std::accumulate(sv_u_liste[1].begin(), sv_u_liste[1].end(), 0.0) / sv_u_liste[1].size() << " "
+//				<< std::accumulate(sv_u_liste[2].begin(), sv_u_liste[2].end(), 0.0) / sv_u_liste[2].size() << ")" << std::endl;
 
 	}
 
-	std::cout << sv_r_liste[0] << std::endl;
-	std::cout << sv_r_liste[1] << std::endl;
-
-	std::cout << sv_t_liste[0] << std::endl;
-	std::cout << sv_t_liste[1] << std::endl;
+//	std::cout << sv_r_liste[0] << std::endl;
+//	std::cout << sv_r_liste[1] << std::endl;
+//
+//	std::cout << sv_t_liste[0] << std::endl;
+//	std::cout << sv_t_liste[1] << std::endl;
 
 	// Initialize positions
 	positions.clear(); // removes all the elemnts and set the size to 0
